@@ -1,0 +1,10 @@
+# $Id$
+
+<biblio>
+	class File
+	file intro.bib
+</biblio>
+
+
+include Elsevier/JSS.pbib
+

@@ -1,0 +1,29 @@
+$Id: new-pbib-field+converter-handling.txt 15 2004-11-28 20:01:40Z tandler $
+
+Some ideas on how to re-implement the formatting part
+
+> abstract type "entry"
+
+a "entry" can be:
+- an entry in the DB (the ref's dictionary)
+- a computed entry, e.g.
+	AuthorEditor = "Author" XOR "Editor"
+- a computed entry with formatting, e.g.
+	BookTitleIt = Italic(SuperTitle)
+- a group of other entries, e.g.
+	VolNumPages = "Volume" ??
+		"Volume" . '(' . "Number" . '):' . Range("Pages")
+
+--> issue: when should the field's type-based formatting apply? always at first usage?
+
+> inheritance for CiteTypes
+
+- define supported + optional fields for the CiteType
+  -> warning if missing
+  -> warning if a given field is unused
+- define possible fields (e.g bibliographic stuff" for all types 
+  in base class "Reference" (or whatever)
+
+
+> Formatting based on entry "types", e.g. Name, URL, List, ...
+

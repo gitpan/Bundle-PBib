@@ -1,0 +1,1111 @@
+# --*-Perl-*--
+# $Id: Main.pm 10 2004-11-02 22:14:09Z tandler $
+#
+
+package PBibTk::Main;
+use strict;
+use warnings;
+
+use File::Basename;
+
+use Tk;
+use Tk::LabFrame;
+use Tk::LabEntry;
+use Tk::DropSite;
+use Tk::FileSelect;
+use Tk::DialogBox;
+use Tk::ErrorDialog;
+use Tk::BrowseEntry;
+
+#use Win32::Process;
+use Win32::Clipboard;
+
+# for debugging
+use Data::Dumper;
+
+# Biblio modules
+use Biblio::BP;
+
+# PBib modules
+use PBib::PBib;
+use PBib::Document;
+
+# own modules
+use PBibTk::LitRefs;
+use PBibTk::SearchDialog;
+use PBibTk::RefDialog;
+
+BEGIN {
+    use vars qw($Revision $VERSION);
+	my $major = 1; q$Revision: 10 $ =~ /: (\d+)/; my ($minor) = ($1); $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
+}
+
+
+use vars qw($rootWindow $filename);
+#use vars qw($fileselect);
+use vars qw($editNewRefsProcess);
+our ($queryAuthorItem, @queryAuthorHistory);
+our ($queryKeywordItem, @queryKeywordHistory);
+
+# options for processing documents.
+our $pbibDocToRtf = 1; # should a .doc file be converted to a .rtf file before processing?
+our $pbibShowResult = 1; # should the processed document be opened in an editor?
+our $pbibOptions = ''; # options to pass to pbib
+
+
+#
+#
+#
+
+sub new {
+  my $class = shift;
+  my ($litrefs) = @_;
+  my $ui = {
+    'litRefs' => $litrefs,
+  };
+  return bless $ui, $class;
+}
+
+sub main {
+  my $self = shift;
+  my $litrefs = $self->litRefs();
+
+  $filename = $litrefs->filename();
+  $filename = "" unless defined($filename);
+
+  $self->window();
+  $self->updateBiblioRefs();
+
+  MainLoop;
+}
+
+
+sub DESTROY ($) {
+  my $self = shift;
+  $self->saveQueryHistory();
+}
+
+#
+# access methods
+#
+
+sub window {
+  my $self = shift;
+  my $win = $self->{'window'};
+  return $win if defined($win);
+
+  if( defined($rootWindow) ) {
+    # open second window
+    $win = $rootWindow->Toplevel();
+  } else {
+    $win = $rootWindow = MainWindow->new();
+#    $fileselect = $win->FileSelect(-directory => $ENV{'DISSDIR'});
+    $win->fontCreate(qw/T_bold    -family times  -size 9  -weight bold/);
+    $win->fontCreate(qw/H_bold    -family helvetica  -size 9  -weight bold/);
+    $win->fontCreate(qw/H_big_bold    -family helvetica  -size 11  -weight bold/);
+  }
+  $win->configure(
+	-title => "PBib",
+	);
+  $self->{'window'} = $win;
+  $self->initWidgets($win);
+  $self->initDropSite($win);
+#myline zur beschleunigung wird der converter nur bei fensteraktualisierung erstellt
+  $self->{'conv'} = $self->make_converter();
+  return $win;
+}
+
+sub rootWindow {
+  my $self = shift;
+  my $win = $rootWindow;
+  $win = $self->window unless defined($win);
+  return $win;
+}
+
+sub biblio { my $self = shift; return $self->litRefs()->biblio(); }
+sub refs { my $self = shift; return $self->biblio()->queryPapers(); }
+#  sub refs { my $self = shift; return $self->litRefs()->refs(); }
+sub conv { my $self = shift;
+	my $conv = $self->{'conv'};
+	if( @_ ) {
+		$conv->setArgs(@_);
+	}
+	return $conv
+}
+
+sub make_converter {
+	my $self = shift;
+	my %args =@_;
+
+	my $doc = new PBib::Document;
+#	my $doc = new PBib::Document::PBib;
+	my $conv = new PBib::ReferenceConverter(
+		'inDoc' => $doc,
+		'outDoc' => $doc,
+		'refStyle'	=> new PBib::ReferenceStyle::BookmarkLink,
+		'labelStyle'	=> new PBib::LabelStyle,
+#		'labelStyle'	=> new PBib::LabelStyle::CiteKey,
+		'bibStyle'	=> new PBib::BibliographyStyle,
+		#  'itemStyle'	=> new PBib::BibItemStyle,
+		'refs' => $self->refs(),
+		'itemOptions' => {
+			'include-label' => 0,
+		},
+		'itemStyle'	=> new PBib::BibItemStyle::IEEETR,
+		%args
+	);
+	return $conv;
+}
+
+
+
+#
+# widgets
+#
+
+
+sub initWidgets {
+  my ($self, $win) = @_;
+  my $f2=$win;
+  my $cmd;
+
+  # biblio and paper frames
+
+  my $l3=$f2->LabFrame(-label => 'choose a Ref', -labelside => "acrosstop")->pack(qw/-expand yes -fill both -side bottom/);	#myline
+  $self->{'chosenLabel'} = $l3;											                #myline
+  my $l1=$f2->LabFrame(-label => 'Biblio Refs', -labelside => "acrosstop")->pack(qw/-expand yes -fill both -side left/);
+  $self->{'refListLabel'} = $l1;
+  my $l2=$f2->LabFrame(-label => 'Paper Refs', -labelside => "acrosstop")->pack(qw/-expand yes -fill both -side right/);
+  $self->{'foundListLabel'} = $l2;
+  my $off = -100;
+
+  # biblio frame
+
+  my $list = $l1->Scrolled('Listbox',
+  	  -scrollbars => 'e',
+	  -width => 32,
+	  -height => 16,
+	)->form(
+	-t => ['%0',0],
+	-l => ['%0',0],
+	-r => ['%100',0],
+	-b => ['%100', $off]);
+  $self->{'refList'} = $list;
+  $cmd = [$self, 'showSelectedBiblioReference'];
+  $list->bind('<Return>' => $cmd);
+  $list->bind('<Double-Button-1>' => $cmd);
+#  $list->bind('<Button-1>' => [ $list, 'focus' ] );                    #focus wird in updateExpandedSelectedBiblioReference ausgefuehrt
+  $list->bind('<Button-1>' => [$self, 'updateExpandedSelectedBiblioReference']);
+  $list->bind('<Up>' => [$self, 'selectionMove', $list, -1]);
+  $list->bind('<Down>' => [$self, 'selectionMove', $list, 1]);
+  $list->bind('<Control-Home>' => [$self, 'selectionMove', $list, 0]);
+  $list->bind('<Control-End>' => [$self, 'selectionMove', $list, 'end']);
+  for( my $c = ord('a'); $c <= ord('z'); $c++ ) {
+#   $win->bind(('<Key-' . chr($c) . '>') => [$self, 'keyPressed', Ev('A'), Ev('s')]);
+   $list->bind(('<Key-' . chr($c) . '>') => [$self, 'keyPressed', Ev('A'), Ev('s'), $list, 'refListIds']);
+  }
+
+  my $b1=$l1->Frame()->form(
+	-t => [$list,0],
+	-l => ['%0',0],
+	-r => ['%100',0],
+	-b => ['%100',0]);
+  my $bf1 = $b1->Frame()->pack(qw/-fill both -expand 1/);
+#  $bf1->Button(-text => "Update", -command => sub{$self->updateBiblioRefs()} )->pack();
+
+  $self->loadQueryHistory();
+  $cmd = [ $self, 'queryAuthor' ];
+#  $bf1->Button(-text => "Query Author", -command => $cmd )->pack(qw/-side left/);
+  $list = $bf1->BrowseEntry(-label => "Author",
+  		-variable => \$queryAuthorItem,
+  		-choices => \@queryAuthorHistory,
+#  		-listcmd => sub { print "popup list"; },
+  		-browsecmd => $cmd,
+  		)->pack(qw/-side top/);
+  $list->bind('<Return>' => $cmd);
+  $self->{'queryAuthorList'} = $list;
+  
+  #  $list->PrintConfig();
+  
+  $cmd = [ $self, 'queryKeyword' ];
+#  $bf1->Button(-text => "Query Keyword", -command => $cmd )->pack(qw/-side left/);
+  $list = $bf1->BrowseEntry(-label => "Keyword",
+  		-variable => \$queryKeywordItem,
+  		-choices => \@queryKeywordHistory,
+#  		-listcmd => sub { print "popup list"; },
+  		-browsecmd => $cmd,
+  		)->pack(qw/-side top/);
+  $list->bind('<Return>' => $cmd);
+  $self->{'queryKeywordList'} = $list;
+  
+  $b1->Button(-text => "Quit", -command => sub{ Tk::exit(0); } )->pack(-side => 'bottom', -padx => 10);#myline "..right', -padx => 10.." statt "..bottom.."
+  
+  # paper frame
+
+  $list = $l2->Scrolled('Listbox',
+      -scrollbars => 'e',
+	  -width => 48,
+	  -height => 16,
+	)->form(
+	-t => ['%0',0],
+	-l => ['%0',0],
+	-r => ['%100',0],
+	-b => ['%100', $off]);
+  $self->{'foundList'} = $list;
+  $cmd = [$self, 'showSelectedPaperReference'];
+  $list->bind('<Return>' => $cmd);
+  $list->bind('<Double-Button-1>' => $cmd);
+#  $list->bind('<Button-1>' => [ $list, 'focus' ] );                    #focus wird in updateExpandedSelectedBiblioReference ausgefuehrt
+  $list->bind('<Button-1>' => [$self, 'updateExpandedSelectedPaperReference']);		#myline
+  $list->bind('<Up>' => [$self, 'selectionMove', $list, -1]);
+  $list->bind('<Down>' => [$self, 'selectionMove', $list, 1]);
+  $list->bind('<Control-Home>' => [$self, 'selectionMove', $list, 0]);
+  $list->bind('<Control-End>' => [$self, 'selectionMove', $list, 'end']);
+  for( my $c = ord('a'); $c <= ord('z'); $c++ ) {
+#   $win->bind(('<Key-' . chr($c) . '>') => [$self, 'keyPressed', Ev('A'), Ev('s')]);
+   $list->bind(('<Key-' . chr($c) . '>') => [$self, 'keyPressed', Ev('A'), Ev('s'), $list, 'foundListIds']);
+  }
+
+  my $b2=$l2->Frame()->form(
+	-t => [$list,0],
+	-l => ['%0',0],
+	-r => ['%100',0],
+	-b => ['%100',0]);
+  $b2->LabEntry(-label => "File: ",
+	     -labelPack => [-side => "left", -anchor => "w"],
+#	     -width => 20,
+	     -textvariable => \$filename)->pack(-expand => 1, -fill => 'x');
+  my $bf2 = $b2->Frame()->pack();
+  $bf2->Button(-text => "Browse", -command => sub{$self->browsePaperFile()} )->pack(qw/-side left/);
+  $bf2->Button(-text => "Edit", -command => sub { openFile($filename); } )->pack(qw/-side left/);
+  $bf2->Button(-text => "Update", -command => sub{$self->readPaperFile()} )->pack(qw/-side left/);
+  $bf2->Button(-text => "Process", -command => [ $self, 'processPaperFile' ] )->pack(qw/-side left/);
+#  $bf2->Button(-text => "Write newrefs.txt", -command => sub{$self->writeNewRefs()})->pack();
+
+#myline runter ---------------------------------------------------
+  # chosen frame
+
+  $list = $l3->Scrolled('TextUndo',
+		-scrollbars => 'se',
+		-wrap => 'word',
+		-setgrid => 'true',
+		-exportselection => 'true',
+		-height => 6,
+	)->form(
+	-t => ['%0',0],
+	-l => ['%0',0],
+	-r => ['%100',0],
+	-b => ['%100', 0]);
+  $self->{'chosenfromlist'} = $list;
+
+  my $b3=$l3->Frame()->form(
+	-t => [$list,0],
+	-l => ['%0',0],
+	-r => ['%100',0],
+	-b => ['%100',0]);
+  my $bf3 = $b3->Frame()->pack();
+#myline hoch ---------------------------------------------------
+
+  # menu inside a menu frame
+
+  my $mf = $win->Menu(-type => 'menubar');
+  $win->configure(-menu => $mf);
+  $self->initMenu($mf, $win);
+
+}
+sub initMenu {
+  my ($self, $mf, $win) = @_;
+  $self->initFileMenu($mf, $win);
+  $self->initBiblioMenu($mf, $win);
+  $self->initPaperMenu($mf, $win);
+}
+sub initFileMenu {
+  my ($self, $mf, $win, $model) = @_;
+  my $cmd;
+  $model = $self unless defined $model;
+  my $mb = $mf->cascade(-label => '~File'); ###, -tearoff => 0);
+
+  $cmd = [ $model, 'browsePaperFile' ];
+  $mb->command(-label => "~Open New Paper", -command => $cmd,
+  				-accelerator => 'Ctrl-O' );
+  $win->bind('<Control-Key-o>' => $cmd);
+
+  $mb->separator();
+
+  $cmd = [ $model, 'importBiblioRefs' ];
+  $mb->command(-label => "~Import References ...", -command => $cmd );
+  #$win->bind('<Control-w>' => $cmd);
+
+  $cmd = [ $model, 'exportBiblioRefs' ];
+  $mb->command(-label => "~Export References ...", -command => $cmd );
+  #$win->bind('<Control-w>' => $cmd);
+
+  $mb->separator();
+
+  $cmd = sub { Tk::exit(0); };
+  $mb->command(-label => '~Quit', -command => $cmd,
+  				-accelerator => 'Ctrl-Q');
+  $win->bind('<Control-q>' => $cmd);
+}
+sub initBiblioMenu {
+  my ($self, $mf, $win, $model) = @_;
+  my $cmd;
+  $model = $self unless defined $model;
+  my $mb = $mf->cascade(-label => '~Biblio'); ###, -tearoff => 0);
+
+#  $cmd = sub { $model->showSelectedBiblioReference(); };
+  $cmd = [$model, 'showSelectedBiblioReference'];
+  $mb->command(-label => 'Show ~Reference', -command => $cmd,
+				-accelerator => 'Ctrl-R' );
+  $win->bind('<Control-r>' => $cmd);
+#  $win->bind('<Return>' => $cmd);
+
+  $cmd = [ $model, 'clipboardSelectedBiblioReferenceId'];
+  $mb->command(-label => '~Copy CiteKey to Clipboard', -command => $cmd,
+				-accelerator => 'Ctrl-C' );
+  $win->bind('<Control-c>' => $cmd);
+
+  $cmd = sub { $model->searchSelectedBiblioReferenceId(); };
+  $mb->command(-label => '~Search CiteKey in Paper', -command => $cmd,
+  				-accelerator => 'Ctrl-J' );
+  $win->bind('<Control-j>' => $cmd);
+
+  $cmd = sub { $model->refList()->focus(); };
+  $mb->command(-label => 'Keyboardfocus to ~Biblio', -command => $cmd,
+  				-accelerator => 'Ctrl-B' );
+  $win->bind('<Control-b>' => $cmd);
+
+  $mb->separator();
+
+  # $cmd = sub{$model->queryAuthor()}; # start search via menu
+  # better: set focus to queryAutor input field
+  $cmd = [ $model, 'entryFocusAndSelectAll',
+						$self->queryAuthorList() ];
+  $mb->command(-label => "Query ~Author", -command => $cmd,
+				-accelerator => 'Ctrl-A' );
+  $win->bind('<Control-a>' => $cmd);
+
+  #$cmd = sub{$model->queryKeyword()};
+  # instead of start query: set focus to keyword input field
+  $cmd = [ $model, 'entryFocusAndSelectAll',
+						$self->queryKeywordList(), ];
+  $mb->command(-label => "Query ~Keyword", -command => $cmd,
+				-accelerator => 'Ctrl-F' );
+  $win->bind('<Control-f>' => $cmd);
+
+  $mb->separator();
+
+  $cmd = sub{$model->updateBiblioRefs()};
+  $mb->command(-label => "~Update from database",
+				-command => $cmd,
+  				-accelerator => 'Ctrl-N' );
+  $win->bind('<Control-n>' => $cmd);
+}
+
+sub initPaperMenu {
+  my ($self, $mf, $win) = @_;
+  my $cmd;
+  my $mb = $mf->cascade(-label => '~Paper');
+
+  $cmd = sub { $self->showSelectedPaperReference(); };
+  $mb->command(-label => 'Show ~Reference', -command => $cmd,
+  				-accelerator => 'Ctrl-T' );
+  $win->bind('<Control-Key-t>' => $cmd);
+
+  $cmd = sub { $self->clipboardSelectedPaperReferenceId(); };
+  $mb->command(-label => '~Copy CiteKey to Clipboard', -command => $cmd,
+  				-accelerator => 'Ctrl-X' );
+  $win->bind('<Control-Key-x>' => $cmd);
+
+  $cmd = sub { $self->searchSelectedPaperReferenceId(); };
+  $mb->command(-label => '~Search CiteKey in Paper', -command => $cmd,
+  				-accelerator => 'Ctrl-G' );
+  $win->bind('<Control-Key-g>' => $cmd);
+
+  $cmd = sub { $self->foundList()->focus(); };
+  $mb->command(-label => 'Keyboardfocus to ~Paper', -command => $cmd,
+  				-accelerator => 'Ctrl-P' );
+  $win->bind('<Control-p>' => $cmd);
+
+  $mb->separator();
+
+  $cmd = sub { openFile($filename); };
+  $mb->command(-label => '~Edit Paper', -command => $cmd,
+  				-accelerator => 'Ctrl-E' );
+  $win->bind('<Control-Key-e>' => $cmd);
+
+  $mb->separator();
+
+  $mb->command(-label => "Read & ~Analyze Paper", -command => [ $self, 'readPaperFile' ]);
+
+  $cmd = [ $self, 'processPaperFile' ];
+  $mb->command(-label => "Pr~ocess Paper", 
+				  -command => $cmd,
+				  -accelerator => 'Ctrl-S' );
+  $win->bind('<Control-Key-s>' => $cmd);
+
+  $mb->command(-label => "~Write newrefs file", -command => [$self => 'writeNewRefs']);
+}
+
+sub refList {
+  my $self = shift;
+  # access window first, to ensure it's created.
+  $self->window();
+  return $self->{'refList'};
+}
+sub foundList {
+  my $self = shift;
+  # access window first, to ensure it's created.
+  $self->window();
+  return $self->{'foundList'};
+}
+sub queryAuthorList { return shift->{'queryAuthorList'}; }
+sub queryKeywordList { return shift->{'queryKeywordList'}; }
+sub chosenLabel { my $self = shift; return $self->{'chosenLabel'}; }
+sub refListLabel { my $self = shift; return $self->{'refListLabel'}; }
+sub foundListLabel { my $self = shift; return $self->{'foundListLabel'}; }
+sub refListSelection { my $self = shift; return $self->refList()->curselection(); }
+sub foundListSelection { my $self = shift; return $self->foundList()->curselection(); }
+
+sub litRefs { my $self = shift; return $self->{'litRefs'}; }
+
+
+
+sub initDropSite {
+# I guess this doesn't qork jet under Win32 ...
+  my ($self, $win) = @_;
+  $win->DropSite(
+	-entercommand => sub{print "enter @_\n";},
+	-leavecommand  => sub{print "leave @_\n";},
+	-motioncommand  => sub{print "motion @_\n";},
+	-dropcommand  => sub{print "drop @_\n";},
+	);
+}
+
+
+#
+# button / menu methods
+#
+
+sub keyPressed {
+  my ($self, $key, $mod, $list, $refsName) = @_;
+  return if $mod && $mod ne '';
+  my $refs = $self->{$refsName};
+  my $idx = $self->indexOfRefStartingWith($refs, $key);
+print "keyPressed $key ($mod) --> $idx\n";
+  $list->focus();
+  $list->activate($idx);
+  $list->selectionClear(0, 'end');
+  $list->selectionAnchor($idx);
+  $list->selectionSet($idx);
+  $list->see($idx);
+  $self->selectionMove($list, undef);
+}
+sub indexOfRefStartingWith {
+  my ($self, $refs, $char) = @_;
+  return undef unless defined($char);
+  my $idx = 0;
+  for( ; $idx < scalar(@$refs); $idx++ ) {
+###  print ord(lc($char)), ' ', ord(lc(substr($refs->[$idx], 0, 1))), " $idx - $refs->[$idx]\n";
+    last if( ord(lc($char)) <= ord(lc(substr($refs->[$idx], 0, 1))) );
+  }
+  return $idx;
+}
+
+sub entryFocusAndSelectAll {
+	my ($self, $list) = @_;
+	$list->focus();
+	$list->selectionRange(0, "end");
+}
+
+sub selectionMove {
+	# called on UP and Down key presses to be able to adjust the printed ref.
+	my ($self, $list, $inc) = @_;
+	if( $list == $self->refList() ) {
+		$self->updateExpandedSelectedBiblioReference();
+	} else {
+		$self->updateExpandedSelectedPaperReference();
+	}
+}
+
+
+# updateing
+
+sub updateBiblioRefs {
+# re-load all refs and re-analyze paper!
+  my $self = shift;
+  my $litrefs = $self->litRefs();
+  $litrefs->readRefs();
+  $litrefs->analyzeFile($filename) if $filename;
+  $self->updateLists();
+}
+
+sub updateLists {
+  my $self = shift;
+  $self->updateBiblioList();
+  $self->updatePaperList();
+  $self->{'conv'} = $self->make_converter();
+  #  $self->conv()->setArgs(
+	  #  'refs' => $self->refs(),
+	  #  );
+}
+sub updateBiblioList {
+# re-load all refs and everything!
+  my $self = shift;
+  $self->refList()->delete(0, "end");
+  $self->addBiblioRefs();
+}
+sub updatePaperList {
+# re-load all refs and everything!
+  my $self = shift;
+  $self->foundList()->delete(0, "end");
+  $self->addPaperRefs();
+}
+
+# read/browse paper
+
+sub readPaperFile {
+  my $self = shift;
+  $self->updateBiblioRefs();
+#  my $litrefs = $self->litRefs();
+#  $litrefs->analyzeFile($filename) if $filename;
+#  $self->updateLists();
+}
+sub browsePaperFile {
+  my $self = shift;
+# orig:
+#  $filename = $fileselect->Show;
+
+  my $types = [
+		['All Files',	'*'],
+		['Text Files',	'.txt'],
+		['TeX / LaTeX',	'.tex'],
+		['Word Files',       ['.doc', '.rtf']],
+	];
+  print Dumper {
+	'$filename' => $filename,
+	'dir' => dirname($filename),
+	'name' => basename($filename),
+	-initialdir => $filename ? dirname($filename) : $ENV{'HOME'},
+	};
+  my $file = $self->window()->getOpenFile(
+  	-filetypes => $types,
+	-defaultextension => '.txt',
+	-initialdir => $filename ? dirname($filename) : $ENV{'HOME'},
+	-initialfile => basename($filename),
+	-title => 'Select Document ...',
+	);
+
+  if( $file ) {
+    $filename = $file;
+    $self->updateBiblioRefs();
+  }
+}
+sub writeNewRefs {
+	my ($self, $file) = @_;
+	$file = $filename unless defined $file;
+	my $litrefs = $self->litRefs();
+	my @refs = @{$litrefs->newrefs()};
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+	my $date = sprintf("%02d-%02d-%02d", ($year+1900) % 100, $mon+1, $mday);
+	my $outfilename = "$filename-refs-$date.txt";
+	print scalar(@refs), " new references found in $filename ($date)\n";
+	open OUT,"> $outfilename";
+	my $ref; my $i = 0;
+	print OUT scalar(@refs), " new references found in $filename ($date)\n\n\n";
+	foreach $ref (sort(@refs)) { print OUT "[", ++$i, "] $ref\n"; }
+	close OUT;
+	print "done.\n";
+	openFile($outfilename);
+}
+sub processPaperFile {
+	my ($self, $file, $refs) = @_;
+	$file = $filename unless defined $file;
+	$refs = $self->biblio()->queryPapers() unless $refs;
+# $pbibOptions = ''; # options to pass to pbib
+	my $config = new PBib::Config();
+	my $pbib = new PBib::PBib(
+		'refs' => $refs,
+		'config' => $config,
+		);
+	my $outDoc = $pbib->processFile($file);
+}
+
+
+# query
+
+#my $authorDialog; my $authorPattern;
+#sub queryAuthor {
+#  my $self = shift;
+#  $self->queryDialog(\$authorDialog, \$authorPattern, "Search Author:", ['Author']);
+#}
+#my $keywordDialog; my $keywordPattern;
+#sub queryKeyword {
+#  my $self = shift;
+#  $self->queryDialog(\$keywordDialog, \$keywordPattern, "Search Keyword:", [
+#	'Keywords', 'Annote', 'Note', 'Title',
+#	'CiteKey', 'Category',
+#	]);
+#}
+
+sub addToHistory { my ($history, $item) = @_;
+	my @oldHistory = @$history;
+	# remove duplicates
+	@$history = ();
+	foreach my $old (@oldHistory) {
+		push @$history, $old if $old ne $item;
+	}
+	# add new item
+	unshift @$history, $item;
+}
+
+sub queryAuthor { my ($self) = @_;
+	print "query $queryAuthorItem\n";
+	addToHistory(\@queryAuthorHistory, $queryAuthorItem);
+	$self->queryAuthorList()->delete(0, "end");
+	$self->queryAuthorList()->insert(0, @queryAuthorHistory);
+	my $q = new PBibTk::SearchDialog ($self,
+		"Search Author: $queryAuthorItem",
+		"%$queryAuthorItem%",
+		['Authors', 'Editors']);
+	$q->show();
+}
+
+sub queryKeyword { my ($self) = @_;
+	print "query $queryKeywordItem\n";
+	addToHistory(\@queryKeywordHistory, $queryKeywordItem);
+	$self->queryKeywordList()->delete(0, "end");
+	$self->queryKeywordList()->insert(0, @queryKeywordHistory);
+	my $q = new PBibTk::SearchDialog ($self,
+		"Search Keyword: $queryKeywordItem",
+		"\%$queryKeywordItem\%",
+		[
+		'Keywords', 'Annotation', 'Note', 'Title',
+		'CiteKey', 'Category',
+		'PBibNote', ##### 'Project', 'Subject', 'BibNote',
+		]);
+	$q->show();
+}
+
+sub saveQueryHistory {
+	my ($self) = @_;
+	open OUT, "> .pbibtk-author-history.txt";
+	foreach my $a (@queryAuthorHistory) { print OUT "$a\n"; }
+	close OUT;
+	open OUT, "> .pbibtk-keyword-history.txt";
+	foreach my $a (@queryKeywordHistory) { print OUT "$a\n"; }
+	close OUT;
+}
+sub loadQueryHistory {
+	my ($self) = @_;
+	if( open IN, "< .pbibtk-author-history.txt" ) {
+		chomp(@queryAuthorHistory = <IN>);
+		close IN;
+	}
+	if( open IN, "< .pbibtk-keyword-history.txt" ) {
+		chomp(@queryKeywordHistory = <IN>);
+		close IN;
+	}
+}
+
+sub queryDialog {
+  my ($self, $dialogRef, $patternRef, $msg, $queryFields) = @_;
+  if( not defined($$dialogRef) ) {
+    $$dialogRef = $self->rootWindow()->DialogBox(-title => "Lit UI", -buttons => ["OK", "Cancel"]);
+    $$dialogRef->LabEntry(-label => $msg,
+	     -labelPack => [-side => "left", -anchor => "w"],
+	     -textvariable => $patternRef)->pack(-expand => 1, -fill => 'x');
+  }
+  my $button = $$dialogRef->Show();
+  return if( $button eq "Cancel" );
+  my $pattern = $$patternRef;
+  return if( not defined($pattern) or $pattern eq "" );
+  my $q = new PBibTk::SearchDialog ($self, "$msg $pattern", "%$pattern%", $queryFields);
+  $q->show();
+}
+
+# show refs
+
+sub showSelectedBiblioReference {
+  my $self = shift;
+  my $idx = $self->refListSelection();
+  return if !defined($idx) || $idx eq "";
+  my $paper = $self->litRefs()->queryPaperWithId($self->biblioRefAt($idx));
+  PBibTk::RefDialog->new($self, $paper)->show();
+}
+sub showSelectedPaperReference {
+  my $self = shift;
+  my $idx = $self->foundListSelection();
+  return if !defined($idx) || $idx eq "";
+  my $paper = $self->litRefs()->queryPaperWithId($self->paperRefAt($idx));
+  PBibTk::RefDialog->new($self, $paper)->show();
+}
+
+sub clipboardSelectedBiblioReferenceId {
+  my $self = shift;
+  my $idx = $self->refListSelection();
+  return if !defined($idx) || $idx eq "";
+  my $ref = $self->biblioRefAt($idx);
+  Win32::Clipboard()->Set("[$ref]");
+}
+sub clipboardSelectedPaperReferenceId {
+  my $self = shift;
+  my $idx = $self->foundListSelection();
+  return if !defined($idx) || $idx eq "";
+  my $ref = $self->paperRefAt($idx);
+  Win32::Clipboard()->Set("[$ref]");
+}
+
+sub searchSelectedBiblioReferenceId {
+  my $self = shift;
+  my $idx = $self->refListSelection();
+  return if !defined($idx) || $idx eq "";
+  $self->searchReferenceId($self->biblioRefAt($idx));
+}
+sub searchSelectedPaperReferenceId {
+  my $self = shift;
+  my $idx = $self->foundListSelection();
+  return if !defined($idx) || $idx eq "";
+  $self->searchReferenceId($self->paperRefAt($idx));
+}
+sub searchReferenceId {
+  my ($self, $ref) = @_;
+#  print "searchReferenceId {$filename, $ref)\n";
+  searchInFile($filename, "[$ref]") if $filename && $ref;
+}
+
+#myline runter ---------------------------------------------------
+sub updateExpandedSelectedBiblioReference {
+  my ($self) = @_;
+  my $idx = $self->refListSelection();
+  return if !defined($idx) || $idx eq "";
+  my $paper = $self->litRefs()->queryPaperWithId($self->biblioRefAt($idx));
+  $self->updateExpandedSelectedReference($paper);
+  $self->{'refList'}->focus();
+}
+sub updateExpandedSelectedPaperReference {
+  my ($self) = @_;
+  my $idx = $self->foundListSelection();
+  return if !defined($idx) || $idx eq "";
+  my $paper = $self->litRefs()->queryPaperWithId($self->paperRefAt($idx));
+  $self->updateExpandedSelectedReference($paper);
+  $self->{'foundList'}->focus();
+}
+sub updateExpandedSelectedReference {
+  my ($self, $paper) = @_;
+  return if !defined($paper) || $paper eq "";
+  my @entry = PBibTk::RefDialog->new($self)->formatRefInfos($paper);
+  $self->chosenLabel()->configure(-label => $entry[0]);
+  my $list = $self->chosen();
+  $list->delete("0.0", "end");
+  $list->insert("end", $entry[1]);
+}
+sub chosen {
+  my $self = shift;
+  # access window first, to ensure it's created.
+  $self->window();
+  return $self->{'chosenfromlist'};
+}
+#myline hoch ---------------------------------------------------
+
+
+#
+# reference handling
+#
+
+sub addBiblioRefs {
+# add for each ref a prefix with some additional information
+# (like this ref's state)
+  my $self = shift;
+  my $litrefs = $self->litRefs();
+  my $list = $self->refList();
+### ToDO: sort case-independent!!
+  my @refListIds = sort {uc($a) cmp uc($b)} @{$litrefs->refs()};
+  $self->{'refListIds'} = \@refListIds;
+  $list->insert("end", map($self->biblioRefLabel($_), @refListIds));
+  $self->refListLabel()->configure(
+	-label => ('Biblio Refs (' .
+		scalar(@{$litrefs->refs()}) . ", " .
+		scalar(@{$litrefs->used()}) . " used, " .
+		scalar(@{$litrefs->unused()}) . " unused" .
+		')')
+	);
+}
+sub biblioRefLabel {
+# return the label for a biblio ref
+  my ($self, $ref) = @_;
+  my $litrefs = $self->litRefs();
+  my %status = %{$litrefs->statusOf($ref)};
+  return ($status{'used'} ? '+' : '  ') .
+          " $ref ($status{'occurances'})";
+}
+sub biblioRefAt {
+# return reference at idx
+  my ($self, $idx) = @_;
+  return undef unless defined($idx);
+  return $self->{'refListIds'}->[$idx];
+}
+
+sub addPaperRefs {
+# add for each ref a prefix with some additional information
+# (like this ref's state)
+  my $self = shift;
+  my $litrefs = $self->litRefs();
+  my $list = $self->foundList();
+  my @foundListIds = sort {uc($a) cmp uc($b)} @{$litrefs->found()};
+  $self->{'foundListIds'} = \@foundListIds;
+  $list->insert("end", map($self->paperRefLabel($_), @foundListIds));
+  $self->foundListLabel()->configure(
+	-label => ('Paper Refs (' .
+		scalar(@{$litrefs->found()}) . ", " .
+		scalar(@{$litrefs->known()}) . " known, " .
+		scalar(@{$litrefs->unknown()}) . " unknown, " .
+		scalar(@{$litrefs->newrefs()}) . " new" .
+		')')
+	);
+}
+sub paperRefLabel {
+# return the label for a biblio ref
+  my ($self, $ref) = @_;
+  my $litrefs = $self->litRefs();
+  my %status = %{$litrefs->statusOf($ref)};
+  return ($status{'new'} ? '*' :
+          ($status{'unknown'} ? '?' : '  ')) .
+          " $ref ($status{'occurances'})";
+}
+sub paperRefAt {
+# return reference at idx
+  my ($self, $idx) = @_;
+  return undef unless defined($idx);
+  return $self->{'foundListIds'}->[$idx];
+}
+
+
+#
+#
+# export
+#
+#
+
+sub exportBiblioRefs {
+	my ($self, $file, $refs) = @_;
+	unless( $file ) {
+		my $types = [
+			['BibTeX',		'.bib'],
+			['All Files',	'*'],
+		];
+		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+			localtime(time);
+		my $date = sprintf("%02d-%02d-%02d",
+			($year+1900) % 100, $mon+1, $mday);
+		$file = "refs-$date.bib";
+		$file = $self->window()->getSaveFile(
+			-filetypes => $types,
+			-defaultextension => '.bib',
+			-initialdir => $filename
+				? dirname($filename)
+				: $ENV{'HOME'},
+			-initialfile => $file,
+			-title => 'Export References ...',
+			);
+	}
+	if( $file ) {
+		$refs = $self->biblio()->queryPapers() unless $refs;
+		Biblio::BP::export($file, $refs);
+	}
+}
+
+#
+#
+# import
+#
+#
+
+sub importBiblioRefs {
+	my ($self, $file, $refs) = @_;
+	unless( $file ) {
+		my $types = [
+			['BibTeX',		'.bib'],
+			['All Files',	'*'],
+		];
+		$file = $self->window()->getOpenFile(
+			-filetypes => $types,
+			-defaultextension => '.bib',
+			-initialdir => $filename
+				? dirname($filename)
+				: $ENV{'HOME'},
+			-title => 'Import References ...',
+			);
+	}
+	if( $file ) {
+		my $refs = Biblio::BP::import(	{}, $file);
+		my $bib = $self->biblio();
+		print STDERR "storing ", scalar(@$refs), " references\n";
+		foreach my $ref (@$refs) { $bib->storePaper($ref) }
+		$bib->commit();
+		$self->updateBiblioRefs();
+	}
+}
+
+
+
+#
+# win stuff
+#
+
+
+#sub Win32ErrorReport{
+#  print Win32::FormatMessage( Win32::GetLastError() );
+#}
+
+sub openFile {
+  my ($filename) = @_;
+  print STDERR "open $filename\n";
+  my $doc = new PBib::Document(
+	'filename' => $filename,
+	'mode' => 'r',
+	);
+  $doc->openInEditor();
+}
+
+sub searchInFile {
+  my ($filename, $text) = @_;
+  print STDERR "search $text in $filename\n";
+  my $doc = new PBib::Document(
+	'filename' => $filename,
+	'mode' => 'r',
+	);
+  $doc->searchInEditor($text);
+}
+
+
+
+
+
+1;
+
+#
+# $Log: LitUI.pm,v $
+# Revision 1.35  2004/03/30 19:12:31   krugar
+# refactored: 
+# 	LitUIRefDialog -> LitUI::RefDialog 
+#	LitUISearchDialog -> LitUI::SearchDialog 
+#
+
+#
+# $Log: LitUI.pm,v $
+# Revision 1.34  2004/03/29 13:12:34  tandler
+# box to see refs
+#
+# Revision 1.33  2003/12/22 21:59:41  tandler
+# toni's changes: include explaination field in UI
+#
+# Revision 1.32  2003/11/20 17:33:44  gotovac
+# reveals entry by clicking on citekey (fast)
+#
+# Revision 1.31  2003/06/16 09:04:53  tandler
+# minor fixes
+#
+# Revision 1.30  2003/06/12 22:18:28  tandler
+# use new PBib::PBib::processFile()
+#
+# Revision 1.29  2003/04/14 09:51:11  ptandler
+# fixed prototypes,
+# provide "import" in menu
+#
+# Revision 1.28  2003/02/20 09:23:40  ptandler
+# minor
+#
+# Revision 1.27  2003/01/21 10:48:17  ptandler
+# use PBib::Config
+#
+# Revision 1.26  2003/01/14 11:10:17  ptandler
+# fonts and export
+#
+# Revision 1.25  2002/11/05 18:25:31  peter
+# sort lists lowercase
+#
+# Revision 1.24  2002/11/03 22:11:17  peter
+# initial file selector dir & name
+#
+# Revision 1.23  2002/10/11 10:12:06  peter
+# unchanged
+#
+# Revision 1.22  2002/09/23 11:13:19  peter
+# directly call pbib to process documents
+#
+# Revision 1.21  2002/08/08 08:20:22  Diss
+# - new window title ("PBib")
+# - menu entry + KB shortcut to jump to paper ref list
+# - autor query looks for fields "Authors" and "Editors"
+#
+# Revision 1.20  2002/06/29 18:28:32  Diss
+# new query style, focus + jump-to-by-key for all ref lists
+#
+# Revision 1.19  2002/06/24 10:46:27  Diss
+# started support for query-histories,
+# which implied changes in the keyboard bindings
+#
+# Revision 1.18  2002/06/19 15:57:41  Diss
+# - menus restuctred
+# - menu keyboard shortcuts (Alt-B, Alt-P)
+# - return and double-click to show reference details window
+# - keys a-z to jump to ref in list
+#
+# Revision 1.17  2002/06/11 11:15:16  Diss
+# fix: update if filename is undef
+#
+# Revision 1.16  2002/06/10 17:13:10  Diss
+# adapted initial window sizes + minor "searchInEditor" fix
+#
+# Revision 1.15  2002/06/07 11:21:41  Diss
+# bugfix: 'PaperID' -> 'CiteKey'
+# new menus for search dialog
+#
+# Revision 1.14  2002/06/06 10:23:59  Diss
+# searchInEditor support - jump to CiteKeys in editor
+# (litUI uses PBib::Doc classes)
+#
+# Revision 1.13  2002/06/06 08:59:06  Diss
+# use Tk:ErrorDialog
+#
+# Revision 1.12  2002/06/06 07:25:07  Diss
+# added keyboard shortcuts
+#
+# Revision 1.11  2002/06/03 11:36:22  Diss
+# use system to start editor (fork seems to crash currently)
+#
+# Revision 1.10  2002/03/22 17:31:02  Diss
+# small changes
+#
+# Revision 1.9  2002/03/18 11:15:50  Diss
+# major additions: replace [] refs, generate bibliography using [{}], ...
+#
+# Revision 1.8  2002/02/25 12:20:08  Diss
+# Biblio can now ignore case in queries (using the SQL lower function),
+# LitUI queries are now case-insensitive, and system() is used to open files.
+#
+# Revision 1.7  2002/02/11 11:57:06  Diss
+# lit UI with search dialog, script to start/stop biblio, and more ...
+#
+# Revision 1.6  2002/01/26 18:21:54  ptandler
+# - disconnect from Biblio-DB in LitRef's destructor (DESTROY)
+#   -> this allows to re-read the entries without re-connecting
+# - moved Word-Doc support from LitUI to LitRef
+#
+# Revision 1.5  2002/01/24 22:44:10  ptandler
+# moved .doc support to LitRefs.pm
+#
+# Revision 1.4  2002/01/24 21:39:35  ptandler
+# several changes
+#
+# Revision 1.3  2002/01/20 14:53:43  ptandler
+# even nicer now :-)
+#
+# Revision 1.2  2002/01/20 14:10:09  ptandler
+# the UI is quite nice already!
+#
+# Revision 1.1  2002/01/19 00:47:59  ptandler
+# - new LitUI.pm and litUI.pl
+# - minor changes
+#

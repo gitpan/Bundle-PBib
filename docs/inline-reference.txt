@@ -1,0 +1,28 @@
+$Id: inline-reference.txt 15 2004-11-28 20:01:40Z tandler $
+
+Some ideas how to parse inline references, i.e. references that don't come 
+from the database, but are embedded in the document, e.g.
+"... as defined in [[Peter Tandler "Inline References in PBib", In some fancy 
+Conference, pp. 300-302, 2002]]."
+
+This would be nice, especially if the inline references would be automatically 
+added to the main bibliographic database and replaced in the document ...
+
+But this is not yet implemented.
+
+Reference ::= Authors \" Title \" Fields
+Authors ::= String \s* ( [.,;] )? \s*
+Title ::= String
+Fields ::= \s* Field \s* ( "," Fields )?
+
+Field ::= ... well .... some heuristic! :-)
+
+SuperTitle ::= "In:?\s*\"" SuperTitle \" -- hint for CiteType=6
+Year ::= "\d\d(\d\d)?"
+
+The BNF uses a perl regexp style. special chars are quote with backslash. 
+Tereminal text is always placed within quotes.
+
+
+I found perl modules that might help, Biblio-DocParser / Biblio-CiteParser, 
+but I didn't look at them yet.

@@ -1,0 +1,17 @@
+/* $Id: diss.pbib 6 2004-10-17 13:48:08Z tandler $
+ */
+include Elsevier/JSS.pbib
+
+<item>
+	include-label   1
+</item>
+<ref>
+	prefix r
+</ref>
+
+/*
+ * $Log: diss.pbib,v $
+ * Revision 1.2  2004/03/29 13:06:02  tandler
+ * styles for ACM conferences
+ *
+ */
