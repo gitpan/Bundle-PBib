@@ -1,11 +1,12 @@
 =head1 NAME
 
-The PBib Input Document Format and Styles
+PBib Intro - The PBib Input Document Format and Styles
 
 =head1 SYNOPSIS
 
 	perl pbib.pl I<filename>
 	pbib I<filename>
+	PBibTk.pl I<filename>
 
 =head1 INTRODUCTION
 
@@ -20,7 +21,7 @@ interpreted by PBib.
 
 =over
 
-=item [[I<reference>]] or [[I<ref 1>], [I<ref 2>]]
+=item B<[[I<reference>]] or [[I<ref 1>], [I<ref 2>]]>
 
 A reference to some material, paper, document, whatever ... (BibTeX' \cite{...}). You can also cite several references within the 
 same field.
@@ -28,7 +29,7 @@ same field.
 The references are identified with their "CiteKey" which is specified 
 in the bibliography database. It depends on the database type, how 
 the CiteKey is specified. BibTeX places the CiteKey before listing 
-other fields (see also L</PBib Reference Types ("CiteType")> below):
+other fields (see also L</PBib Reference Types> below):
 
 	@inproceedings{BEACH-ConnecTables,
 	   author = {Peter Tandler and Thorsten Prante and Christian M{\"u}ller-Tomfelde and Norbert Streitz and Ralf Steinmetz},
@@ -46,13 +47,13 @@ In this example "BEACH-ConnecTables" is the CiteKey (while "@inproceedings" is t
 the text as [[BEACH-ConnecTables]].
 
 
-=item [{}] or [{“Authors” LIKE ‘%Tandler%’}]
+=item B<[{}] or [{“Authors” LIKE ‘%Tandler%’}]>
 
 The list of references, which may include filters. The filters are
 specified as a subset of SQL's "where" clause syntax. Not all bibliography database formats support filters.
 
 
-=item [< I<some comment> >] or [# I<some todo marker> #]
+=item B<[< I<some comment> >] or [# I<some todo marker> #]>
 
 This can be used for placing comments in the input document while
 writing. It is formatted by PBib or removed (if PBib is run in the 
@@ -91,7 +92,7 @@ can be combined.
 
 =over
 
-=item inline
+=item B<:inline>
 
 Styles that use the authors' names to generate the reference, 
 are instructed to inline the author's name in the text. For example, the Label Style "Name" generates "Tandler (2001)" instead of 
@@ -103,19 +104,19 @@ if the authors name is used as part of a sentence, e.g. "Tandler (2001) introduc
 	[:inline|[COAST-Model], p. 4]
 	[ : inline :   etal  = 5  |  [COAST-Model], p. 3]
 
-=item noauthor
+=item B<:noauthor>
 
 The author's name is suppressed. The Label Style "Name" only outputs the year, e.g. "[ :noauthor | [BEACH-ConnecTables]]" generates "(2001)". Use this, if you have mentioned the author's name already 
 in the text yourself, e.g. "Tandler [ :noauthor | [BEACH-ConnecTables]] introduced ...".
 
-=item noparens
+=item B<:noparens>
 
 The parentheses around the reference are suppressed, e.g. "Tandler, 2001" instead of "(Tandler, 2001)". You can use this if you place the 
 reference inside parentheses yourself.
 
 =back
 
-I<Hint:> You can process this introduction with pbib to get an idea of 
+I<Hint:> You can process this introduction (i.e. the text you are just reading) with pbib to get an idea of 
 how the fields are formatted. (Be sure to change to the F<docs> directory so that PBib finds the right F<local.pbib> configuration file.
 
 
@@ -133,102 +134,100 @@ PBib styles are combined from four sub-styles, that each is configured by a coup
 
 =over
 
-=item B<Bibliography Style> C<bib>
+=item B<Bibliography Style> (C<bib>)
 
 The overall style for the list of references.
 
-=item B<Bibliography Item Style> C<item>
+=item B<Bibliography Item Style> (C<item>)
 
 The style to format each entry (item) within the list of references.
 
-=item B<Label Style> C<label>
+=item B<Label Style> (C<label>)
 
 The label for references, used both at the citation and the list of references.
 
-=item B<Reference Style> C<ref>
+=item B<Reference Style> (C<ref>)
 
 The style to format the reference (citation) within the text.
 
 =back
 
 For now, please look at the provided styles in the F<styles> directory and the perl style classes 
-L<PBib::BibliographyStyle>, 
-L<PBib::BibItemStyle>,
-L<PBib::LabelStyle>, and
-L<PBib::ReferenceStyle>.
+L<PBib::BibliographyStyle|PBib::BibliographyStyle>, 
+L<PBib::BibItemStyle|PBib::BibItemStyle>,
+L<PBib::LabelStyle|PBib::LabelStyle>, and
+L<PBib::ReferenceStyle|PBib::ReferenceStyle>.
 
 
 
 =head1 PBib Reference Types
 
-PBib supports the reference types as BibTeX and bp, with some additions / modifications. The numbers are used internally only. 
+PBib supports the reference types as BibTeX and bp, with some additions / modifications. 
 
 Please, take a look at F<docs/CiteTypes.sxc> for more information.
 (I<Note:> The reference types are implemented in class L<PBib::BibItemStyle|PBib::BibItemStyle>.)
 
 =over
 
-=item article
+=item B<article>
 
 [[BEACH-AppModel+FW]]
 
-=item book
+=item B<book>
 
 [[BuildAppFWs], [Carroll-HCIMillennium]]
 
-=item booklet
+=item B<booklet>
 
-=item inbook
+=item B<inbook>
 
-=item incollection
+=item B<incollection>
 
 [[Roomware-NextGeneration], [Multimodal-UI-Design]]
 
-=item inproceedings, conference
+=item B<inproceedings, conference>
 
 [[COAST-Model], [BEACH-ConnecTables]]
 
-=item journal
+=item B<journal>
 
 [[CACM.CFW], [CACM.OOFW]]
 
-=item manual
+=item B<manual>
 
 [[COAST-Overview], [VisualWorks-UsersGuide]]
 
-=item thesis, masterthesis, phdthesis
+=item B<thesis, masterthesis, phdthesis>
 
 [[BEACH-ContextMaker], [Jacobsen-SoftwareModelling], [Nowack-Structures+Interactions], [Schilit-PhDThesis]]
 
-=item misc
+=item B<misc>
 
-=item proceedings
+=item B<proceedings>
 
 [[UIST01], [HUC00]]
 
-=item report
+=item B<report>
 
 [[Gaia-AppModel], [Groupware-Architectures]]
 
 with new label (RepType): [[Pebbles-Amulet]]
 
-=item unpublished, email
+=item B<unpublished, email>
 
-=item url, web
+=item B<url, web>
 
 [[COAST-Homepage], [VisualWorks-Homepage], [SMART-Homepage], [iRoom-Homepage], [Pebbles-Homepage]]
 
-=item talk, speech, slides
+=item B<talk, speech, slides>
 
 [[BEACH-ConnecTables-slides], [BEACH-SyncCollaboration-slides]]
 
-=item I<poster> = avmatierial
-
-=item patent
+=item B<patent>
 
 [[Cooltown-EmbeddedWebAccess]]
 
-=item avmatierial, video, cdrom, poster
+=item B<avmatierial, video, cdrom, poster>
 
 =back
 

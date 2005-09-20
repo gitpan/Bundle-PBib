@@ -1,5 +1,5 @@
 # --*-Perl-*--
-# $Id: PBib.pm 18 2004-12-12 07:41:44Z tandler $
+# $Id: PBib.pm 24 2005-07-19 11:56:01Z tandler $
 #
 
 =head1 NAME
@@ -48,7 +48,14 @@ Several formats are supported:
 
 =item - Perl:DBI databases
 
+You can configure the database schema to use, see F<conf/default.pbib>, F<conf/OOo-table.pbib> and some for DBMSs, see
+F<conf/mysql.pbib>, F<conf/adabas.pbib>.
+You can C<include> the files in your F<site.pbib> file if you are
+using one of these systems.
+
 =item - bibtex files
+
+=item - several other file types that are supported by the bp package.
 
 =back
 
@@ -87,7 +94,7 @@ You can find sample files in the test folder F<t>.
 
 =item - MS Word .doc, .rtf
 
-.doc will be converted to .rtf before processing (requires MS Word to be installed.)
+.doc will be converted to .rtf before processing (requires MS Word to be installed)
 
 =item - Plain Text
 
@@ -129,7 +136,8 @@ Provided scripts as front ends for the modules:
 
 bin/pbib.pl <<filename>>
 
-Process an input document and write the converted output.
+Process an input document and write the converted output to a new file
+called I<filename>C<-pbib.>I<ext>.
 
 
 bin/PBibTk.pl [<<optional filename>>]
@@ -137,13 +145,24 @@ bin/PBibTk.pl [<<optional filename>>]
 Open a Tk GUI that allows you to browse you bibliography database and browse the items referenced in your document.
 
 
-You can use a filename.pbib config file to specify specific configuration for a file.
+=head1 SUCCESS STORIES ;-)
+
+I've used PBib/PBibTk to format citations and generate the bibliography for my thesis and several other papers; 
+in fact, I wrote it as I couldn't find another tool that matched my requirements. 
+To get an idea of the scope that PBib can handle: My thesis references about 360 papers, there are >900 entries in the database, the thesis converted to a RTF file is about 50MB. Maybe, you want to have a look at 
+L<http://elib.tu-darmstadt.de/diss/000506> or 
+L<http://ipsi.fraunhofer.de/ambiente/publications/>.
+
+The bibliographic database I used is available in BibTeX format at L<http://tandlers.de/peter/beach/> (with lots of HCI, CSCW, UbiComp references).
+
 
 =head1 CONFIGURATION
 
 You can configure PBib in a number of ways, e.g. using config files and 
 environment variables. For detailed information, please refer to 
 module L<PBib::Config>.
+
+You can use a filename.pbib config file to specify specific configuration for a file.
 
 =head2 Environment Variables
 
@@ -270,7 +289,7 @@ BEGIN {
     use vars qw($Revision $VERSION);
 	# SVN for generating version numbers is somehow strange ...
 	# maybe there's a better way?
-	my $major = 2; q$Revision: 18 $ =~ /: (\d+)/; my $minor = $1 - 10; $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
+	my $major = 2; q$Revision: 24 $ =~ /: (\d+)/; my $minor = $1 - 10; $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
 }
 
 # superclass
@@ -581,7 +600,13 @@ sub logStatistics {
 }
 
 
-=item $pbib->scanFile()
+#
+#
+# scanning
+#
+#
+
+=item $pbib->scanFile($infile, $config)
 
 Returns the foundInfo for the $infile.
 
@@ -606,7 +631,55 @@ sub scanFile {
 	return $foundInfo;
 }
 
+=item \%foundIDs = $pbib->filterReferencesForFiles(@files)
 
+Filter the known references to the ones used in @files, a hash reference is returned.
+CrossRefs are also included (filterReferences() is used).
+
+=cut
+
+sub filterReferencesForFiles ($@) {
+	my ($self, @files) = @_;
+	my %foundIDs;
+	
+	while( my $file = shift(@files) ) {
+		my $foundInfo = $self->scanFile($file);
+		foreach my $id (keys(%$foundInfo)) {
+			$foundIDs{$id} = 1;
+		}
+	}
+	return $self->filterReferences(\%foundIDs);
+}
+
+=item $pbib->filterReferences($filter_refs)
+
+Scan the passed refs for the known ones, return a new hash reference with all known references (including CrossRefs).
+
+=cut
+
+sub filterReferences ($$) {
+	my ($self, $filter_refs) = @_;
+	my $all_refs = $self->refs();
+	my @filterIDs = keys(%$filter_refs);
+	my %known_refs;
+	my $id;
+	
+	while ($id = shift(@filterIDs)) {
+		my $ref = $all_refs->{$id};
+		if( ! defined($ref) ) {
+			print STDERR "Unkown reference '$id'\n";
+		} else {
+			$known_refs{$id} = $ref;
+			if( exists $ref->{'CrossRef'} ) {
+				# if there is a CrossRef field, add all xref IDs
+				# to the list of refs to export
+				push @filterIDs, split(/,/, $ref->{'CrossRef'});
+			}
+		}
+	}
+	
+	return \%known_refs;
+}
 
 1;
 
@@ -621,7 +694,7 @@ Peter Tandler <pbib@tandlers.de>
 
 =head1 COPYRIGHT AND LICENCE
 
-Copyright (C) 2002-2004 P. Tandler
+Copyright (C) 2002-2005 P. Tandler
 
 For copyright information please refer to the LICENSE file included in this distribution.
 
@@ -629,3 +702,4 @@ For copyright information please refer to the LICENSE file included in this dist
 
 F<bin\pbib.pl>, F<bin\PBibTk.pl>
 
+L<http://tandlers.de/peter/pbib/>

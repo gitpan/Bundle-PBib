@@ -25,7 +25,7 @@ is_deeply($a,{
 		'Title' => 'Roomware: Towards the next generation of human-computer interaction based on an integrated design of real and virtual worlds',
 		'BibDate' => '2003-06-16 11:44:53',
 		'Year' => '2001',
-		'CrossRef' => 'Carroll-HCIMillennium',
+		'CrossRef' => 'Carroll-HCIMillennium', ## CrossRef is now handeled by bp ...
 		'Source' => 'http://ipsi.fraunhofer.de/ambiente/publications/',
 		'Publisher' => 'Addison Wesley',
 		'OrigFormat' => 'bibtex (dj 18 dec 96)',

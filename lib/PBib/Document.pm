@@ -1,5 +1,5 @@
 # --*-Perl-*--
-# $Id: Document.pm 19 2004-12-12 12:15:43Z tandler $
+# $Id: Document.pm 25 2005-09-17 21:45:54Z tandler $
 #
 
 =head1 NAME
@@ -35,7 +35,7 @@ use warnings;
 
 BEGIN {
     use vars qw($Revision $VERSION);
-	my $major = 1; q$Revision: 19 $ =~ /: (\d+)/; my ($minor) = ($1); $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
+	my $major = 1; q$Revision: 25 $ =~ /: (\d+)/; my ($minor) = ($1); $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
 }
 
 # superclass
@@ -135,6 +135,7 @@ sub findDocumentClass {
 	    if( $filename =~ /\.s[tx]w$/i ) { $class = 'OpenOfficeSXW'; last FILETYPE; }
 	    if( $filename =~ /\.xml$/i ) { $class = 'XML'; last FILETYPE; }
 	    if( $filename =~ /\.xhtml$/i ) { $class = 'XHTML'; last FILETYPE; }
+	    #  if( $filename =~ /\.html$/i ) { $class = 'XHTML'; last FILETYPE; }
 	  }
 	}
   }

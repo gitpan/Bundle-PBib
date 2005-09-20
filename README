@@ -37,7 +37,13 @@ QUICK START
     Several formats are supported:
 
     - Perl:DBI databases
+        You can configure the database schema to use, see conf/default.pbib,
+        conf/OOo-table.pbib and some for DBMSs, see conf/mysql.pbib,
+        conf/adabas.pbib. You can "include" the files in your site.pbib file
+        if you are using one of these systems.
+
     - bibtex files
+    - several other file types that are supported by the bp package.
 
     I'd recommend to use a mysql database, this works fine for me. See the
     config/sample user.pbib file for some examples.
@@ -74,7 +80,7 @@ QUICK START
   Supported document formats
     - MS Word .doc, .rtf
         .doc will be converted to .rtf before processing (requires MS Word
-        to be installed.)
+        to be installed)
 
     - Plain Text
         TeX input is currently handled as plain text, there is no specific
@@ -107,20 +113,35 @@ QUICK START
 
     bin/pbib.pl <<filename>>
 
-    Process an input document and write the converted output.
+    Process an input document and write the converted output to a new file
+    called *filename*"-pbib."*ext*.
 
     bin/PBibTk.pl [<<optional filename>>]
 
     Open a Tk GUI that allows you to browse you bibliography database and
     browse the items referenced in your document.
 
-    You can use a filename.pbib config file to specify specific
-    configuration for a file.
+SUCCESS STORIES ;-)
+    I've used PBib/PBibTk to format citations and generate the bibliography
+    for my thesis and several other papers; in fact, I wrote it as I
+    couldn't find another tool that matched my requirements. To get an idea
+    of the scope that PBib can handle: My thesis references about 360
+    papers, there are >900 entries in the database, the thesis converted to
+    a RTF file is about 50MB. Maybe, you want to have a look at
+    <http://elib.tu-darmstadt.de/diss/000506> or
+    <http://ipsi.fraunhofer.de/ambiente/publications/>.
+
+    The bibliographic database I used is available in BibTeX format at
+    <http://tandlers.de/peter/beach/> (with lots of HCI, CSCW, UbiComp
+    references).
 
 CONFIGURATION
     You can configure PBib in a number of ways, e.g. using config files and
     environment variables. For detailed information, please refer to module
     PBib::Config.
+
+    You can use a filename.pbib config file to specify specific
+    configuration for a file.
 
   Environment Variables
     PBIBDIR
@@ -227,18 +248,29 @@ METHODS
     logStatistics($logfile, $conv, $options, $duration)
         Write log file.
 
-    $pbib->scanFile()
+    $pbib->scanFile($infile, $config)
         Returns the foundInfo for the $infile.
+
+    \%foundIDs = $pbib->filterReferencesForFiles(@files)
+        Filter the known references to the ones used in @files, a hash
+        reference is returned. CrossRefs are also included
+        (filterReferences() is used).
+
+    $pbib->filterReferences($filter_refs)
+        Scan the passed refs for the known ones, return a new hash reference
+        with all known references (including CrossRefs).
 
 AUTHOR
     Peter Tandler <pbib@tandlers.de>
 
 COPYRIGHT AND LICENCE
-    Copyright (C) 2002-2004 P. Tandler
+    Copyright (C) 2002-2005 P. Tandler
 
     For copyright information please refer to the LICENSE file included in
     this distribution.
 
 SEE ALSO
     bin\pbib.pl, bin\PBibTk.pl
+
+    <http://tandlers.de/peter/pbib/>
 

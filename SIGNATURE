@@ -13,46 +13,43 @@ not run its Makefile.PL or Build.PL.
 
 -----BEGIN PGP SIGNED MESSAGE-----
 
-SHA1 44bfcc1b751edf8e3533ea93daf9c29163153ef4 Build.PL
-SHA1 032bddf80e80686961ebb521c7b968c7c5226c87 Bundle-PBib.ppd
-SHA1 282e4f75c5de149912a81988270b243852b5aafc CHANGES
+SHA1 5605f4503de83383a263e0bc8588c3f7dd6df1b9 Build.PL
+SHA1 8f82c3a9797e134d2b607c84f0c6f841318c4ae8 Bundle-PBib.ppd
+SHA1 26dfd45fd8238d36fc104cdc711626c468a3a731 CHANGES
 SHA1 8cf1cc82caf6b7d5955e398600f0a351ff7de174 INSTALL
-SHA1 89c2962983649d2985f878a654301821fe7f8b45 InnoSetupTemplate.iss
-SHA1 058c9a196889990159e028207e69dbaa17981aca LICENSE
-SHA1 aec31dd4b7d980b0827c316e666a98b8f94657e8 MANIFEST
-SHA1 7c3fdc3df35d385c0868bce18fa568c7769c7be3 META.yml
-SHA1 e80344a46073e374450d48fb162009cf61553c74 Makefile.PL
-SHA1 12a7c24afaac3c94854503f533819a09aafa09c7 README
+SHA1 a7401580783a3a8843d697fbb323ececa033b467 InnoSetupTemplate.iss
+SHA1 817f32728f12af29ff9551b023308cce3c7629fa LICENSE
+SHA1 4f477385422e2ccb04266eee0531f57a58f34a1f MANIFEST
+SHA1 40197e5d436b711337fa13d3c211145eb7f6a7a0 META.yml
+SHA1 45e6b8f298220c93a05fdd6adf000b1dcbd6df1d Makefile.PL
+SHA1 f919a266c8464f08c20c0af5fb421fc0c92aff9f README
 SHA1 7d8e5a824c3ec01b4a9e33b6f22ad1d886231ae7 bin/.cvsignore
-SHA1 e847eade1933c1517d6d0d4703559c2155a6995d bin/PBibTk.pl
+SHA1 a046055dc399fd158fe6b3a217eed8711842bced bin/PBibTk.pl
 SHA1 a8ca1a8478dfcf8e8b244e0a728662a3bccaf875 bin/default.pbib
-SHA1 e7bd0bbd6052bf0e0a53649317c087d80c1ed92c bin/pbib-export.pl
-SHA1 e8ccac352b311a5b24e12580dbd99d7adb2c82f6 bin/pbib-export_old.pl
+SHA1 30e123efca8da61dc6fd163e8e3e9733b2e48b50 bin/pbib-export.pl
 SHA1 de775465cd4a39bb4907cd5b41aef565a53b037e bin/pbib-import.pl
-SHA1 6f8c7ab5cbd4b0012758e17c749fc56d35b53e2a bin/pbib.pl
-SHA1 141c859567774e9e3d705ecb793d7f55fc768bee conf/IPSI---site.pbib
-SHA1 daceda6417a30bf921c1d4d0f4b1c20b93347294 conf/OOo-table.pbib
-SHA1 de729df1a4ddec5e528d7cd0f040e4c9425a9fa1 conf/adabas.pbib
-SHA1 52a48f9b64d31d38198687b972019a5538401834 conf/default.pbib
-SHA1 9536b338ffe8dd6c94e7361c82c98bb7b5782d7d conf/mysql.pbib
-SHA1 f7e7bbd5026212818d7509e305afe58e1c503bdc conf/sample-local.pbib
-SHA1 a5fa9a35c3398343f24a8307b29104f227259b5c conf/sample-user.pbib
+SHA1 9a0ccc54d2621f5cc999766e0009d205f9d88e50 bin/pbib.pl
 SHA1 354fe1220b350c3aaffb928cc51e365fae98a584 docs/CiteTypes.sxc
 SHA1 a299ef497abcb75248fb87206c171969fc9e1307 docs/Edit_Bibliography-OOoDB.sxw
-SHA1 a67c95b3a2029b2aad1a3cd0eb4cb24cab3e1027 docs/Edit_Bibliography.sxw
+SHA1 a533b80938fce25b559dc67e63c8c11e039af183 docs/Edit_Bibliography.sxw
 SHA1 70d6a1ee0a1cc2b62aace528077636d1a9dde434 docs/EndNote-Titular-Names--ROFM.acgi.html
-SHA1 64d8a5641dc925eec78874f5ad155e851b9e4bf0 docs/Intro.html
-SHA1 1272bb119e84e34eb7b6d82e3735f90ee7ae0f9a docs/Overview.html
-SHA1 cb96dd7bb75ed29b10266eb03b56eb549ef86140 docs/ToDo.txt
+SHA1 00bbf7f2e0901495e1e49afadf8cecb3a5d64c8b docs/Intro.html
+SHA1 4cb3703f2d302b49d3a9a1ec31fe46e96f01112b docs/Overview.html
+SHA1 ed91074efb7d766d59119b34171f90fb84c943bb docs/PBibTk-Overview.png
+SHA1 f72932e0c73a676a21193ee9e9d9c3e916dc64d7 docs/PBibTk-Overview.ppt
+SHA1 dc4afb917e16f5296d2a82c44401e94fda6aaa5f docs/PBibTk-ReferenceDetails.png
+SHA1 d8ef49483e3ae8df25bd56fa54d9052dac049f01 docs/PBibTk-SearchResults.png
+SHA1 a1c729817f23df6927f3e7e04373d8ecba096cc2 docs/PBibTk-main.png
+SHA1 6aaa7a5552da6d5c4a22dda381135bea709d291d docs/The-Digital-Object-Identifier-System.URL
+SHA1 a6d292bd8cf3acfe2037a3e42d2f38d157f5c09c docs/ToDo.txt
 SHA1 b1cb7ba7e36bbf5b6a10cc1db2e1526a3cae27d7 docs/create-biblio.sql
-SHA1 79abe1bd4033a8e2f1566ab3298d8b32f5055dc5 docs/inline-reference.txt
+SHA1 c4cc1c3e97f6b4e577723df749d3c12b5c51b3e4 docs/doi.html
 SHA1 cec6f08b5aded00f2191406cf43d9cf3091a8129 docs/intro.bib
-SHA1 3a24afab2be4d25f24d29ae882885da52c9281c7 docs/local.pbib
-SHA1 cfde7abd3c2ef98b08582f105a9cc525b195bf5a docs/new-pbib-field+converter-handling.txt
-SHA1 1fb0c9b4750c0326ca794d2198d6eec9937d1f9b install.bat
+SHA1 c6f7a3894392aeeeabaca2f1f896a06cff9d0460 docs/local.pbib
+SHA1 85cd987d8aa1d97cd813eeabeded73eef366ec63 install.bat
 SHA1 72e4a6f9508ccb60b99e8fb085333ea8a02ca076 lib/.cvsignore
 SHA1 8936b29bc701f990b8a8f78d331fd3f4274e2182 lib/Biblio/.cvsignore
-SHA1 5a3d4c0e68635aedc34824d1cb975589a3969bb2 lib/Biblio/BP.pm
+SHA1 2995290aa572f647da09828b6fa74edaaa12c17b lib/Biblio/BP.pm
 SHA1 f533560dcc71a3ebd9a2835fc612a4c389c4b75d lib/Biblio/Biblio.pm
 SHA1 be02653ab47cc966ff8d423b8fc5c10157ae9e59 lib/Biblio/Bibtex.pm
 SHA1 92d910fd96d10bc48b2a701292b26da12c6e5ac5 lib/Biblio/Database.pm
@@ -126,26 +123,27 @@ SHA1 847d60d830e1062d48e081cb5a01ae0cdfe8a0c8 lib/PBib/BibItemStyle/ACM.pm
 SHA1 832f57316392c9f945592eab4614b6592ee8af88 lib/PBib/BibItemStyle/ElsevierJSS.pm
 SHA1 4f7b3cd930dc94c0e523d79c294bbf09168e75f7 lib/PBib/BibItemStyle/IEEE.pm
 SHA1 20fdda5d22bbb8fa2d4de656d1cc4de96b2036d6 lib/PBib/BibItemStyle/IEEETR.pm
+SHA1 117a936e00ba9391a9bb4fd7aad189f4f540fbbb lib/PBib/BibItemStyle/InderScience.pm
 SHA1 44002fcd84f516bb450325406b7837367fedb0fe lib/PBib/BibliographyStyle.pm
 SHA1 8936b29bc701f990b8a8f78d331fd3f4274e2182 lib/PBib/BibliographyStyle/.cvsignore
-SHA1 0dd1692672cf5dc671b8bf2575d889dce5e71b14 lib/PBib/Builder.pm
-SHA1 f0ce265ff0e82947511caaef0c61aa63588695b5 lib/PBib/Config.pm
+SHA1 6d9ec9d30101ce6d6bbe45d3c73f32ab855a4d3b lib/PBib/Builder.pm
+SHA1 9e123a02223f4e23e33da82b8ab73be7f87fb428 lib/PBib/Config.pm
 SHA1 06f447cfaa5783ae08933ff279ee8aa99c85641d lib/PBib/ConfigFile.pm
-SHA1 bc58c6ff9485dd0f80c41ce412950e924590e271 lib/PBib/Document.pm
+SHA1 0bbe13d877ec4089c2d0940e2b4cc2874577b343 lib/PBib/Document.pm
 SHA1 8936b29bc701f990b8a8f78d331fd3f4274e2182 lib/PBib/Document/.cvsignore
 SHA1 eca5d818e6b8a557d72d1d5ec5021b9d2e770251 lib/PBib/Document/MSWord.pm
 SHA1 bf7e6f7bd206ef262fecf7eef5d082df8286e46e lib/PBib/Document/OpenOffice.pm
 SHA1 13d496075fdb4ac343f711955fa123b19e3eda47 lib/PBib/Document/OpenOfficeSXW.pm
 SHA1 949ee2bc871adabbafcb055ef1ae4ffa2dcc60d5 lib/PBib/Document/PBib.pm
 SHA1 0007af6c4f9a8f556292b15f8a40811ad2e6f88e lib/PBib/Document/RTF.pm
-SHA1 ef0eac6b1f4db82b3ec8cef8af173a31bfaabccc lib/PBib/Document/XHTML.pm
+SHA1 deb57cd3a331a849183e1133f9375010e31eb9a8 lib/PBib/Document/XHTML.pm
 SHA1 623bd32df21b48cc6de6bbd53e8eb262051d54ed lib/PBib/Document/XML.pm
-SHA1 b1c26b78afeed38b36938c3211e8d148e4d87197 lib/PBib/Intro.pod
+SHA1 b898a808723f33e37d9c01c36c5cd8cdd7ea8690 lib/PBib/Intro.pod
 SHA1 14306f5c89afefd68fa69d828c932aa8e2b870db lib/PBib/LabelStyle.pm
 SHA1 8936b29bc701f990b8a8f78d331fd3f4274e2182 lib/PBib/LabelStyle/.cvsignore
 SHA1 0f7febbed747386c99dfba0ac55a4388c1080256 lib/PBib/LabelStyle/CiteKey.pm
 SHA1 e70b5b19d078fc25c33cc0da8540c305ab2c3691 lib/PBib/LabelStyle/Name.pm
-SHA1 b5eb909c6beacfadd3980b12d6a3566f73fb8cdb lib/PBib/PBib.pm
+SHA1 68159eb63fdf8389f23377bd476f8ecd673603db lib/PBib/PBib.pm
 SHA1 e7ac4a1d05495aac46045a6929bed5368d2a79f8 lib/PBib/ReferenceConverter.pm
 SHA1 97bd1fb2e370a4b4efc3e5ffe42c7b36ab500449 lib/PBib/ReferenceConverter/MSWord.pm
 SHA1 71d7dda1bcf95ce28513fe0bc3c28211e8664b26 lib/PBib/ReferenceStyle.pm
@@ -153,32 +151,40 @@ SHA1 8936b29bc701f990b8a8f78d331fd3f4274e2182 lib/PBib/ReferenceStyle/.cvsignore
 SHA1 c49a3edaf2b70127c2824a57cb7a26d5cc08b630 lib/PBib/ReferenceStyle/BookmarkLink.pm
 SHA1 23d64b0c3e87a1cbd604e62813fead8a734ed1f2 lib/PBib/ReferenceStyle/Field.pm
 SHA1 b067f682d4199feca78de620971f01e1cbe19018 lib/PBib/Style.pm
+SHA1 61fc8f10b4b6a9c2fbc556ef1680c6b264055676 lib/PBib/conf/IPSI---site.pbib
+SHA1 9bbd80d82341b5e80a657f63824d98b2f318bbf6 lib/PBib/conf/OOo-table.pbib
+SHA1 568eb0d1bcb66f4e007c13b38d1725266a2d083b lib/PBib/conf/adabas.pbib
+SHA1 c3cbcbc97691c51d9d8b663d6d6430c19fb64968 lib/PBib/conf/default.pbib
+SHA1 7540d1730133fe29ffee254321a68f603db60cc5 lib/PBib/conf/mysql.pbib
+SHA1 41b60b04f2b0da0cf5abeb7d542f8fda778585d6 lib/PBib/conf/sample-local.pbib
+SHA1 a5fa9a35c3398343f24a8307b29104f227259b5c lib/PBib/conf/sample-user.pbib
+SHA1 d18311b5bf057515d30381961aeee98f6edcb667 lib/PBib/styles/ACM/CHI.pbib
+SHA1 2c832856eda2d3475383a79dc7f167d9752745d2 lib/PBib/styles/ACM/CSCW.pbib
+SHA1 20a9d5599cc9585f0ae1f19fbb78b5b6dceb6ac3 lib/PBib/styles/ACM/SIG.pbib
+SHA1 a61d3e86d87f7a303152ffaec446ef2218c85a48 lib/PBib/styles/Elsevier/JSS.pbib
+SHA1 42e58633d902e954e8f50a950c504a2184abd0f8 lib/PBib/styles/IEEE/TR.pbib
+SHA1 aa544a07a72b48f43ce33fc2233332a346872924 lib/PBib/styles/InderScience/IJCAT.pbib
+SHA1 328c27d375314c9e5bcc258852080d9c19a10e59 lib/PBib/styles/peter/diss.pbib
+SHA1 d6c27595ea5f38a459ed6dc3f18c1f7b53e87f53 lib/PBib/styles/peter/labeled-list.pbib
+SHA1 6befd625ad71c1c08cb7759d02fd4488cb115fb6 lib/PBib/styles/peter/list.pbib
 SHA1 0a23f2cbf0243804cb74611456eaa0840d9afb9e lib/PBibTk/HistoryList.pm
 SHA1 0744dc63e934376a4f062c9ac8d9925bf19ca880 lib/PBibTk/LitRefs.pm
-SHA1 3ae5fb8f3569b933bba7f695b92b7c6eddad97f6 lib/PBibTk/Main.pm
+SHA1 891d07b213a82d6e7dc5185f0c5969de198de1b1 lib/PBibTk/Main.pm
 SHA1 0ef12fa6e1f69c779356b2658d0c6527a40b8c64 lib/PBibTk/RefDialog.pm
 SHA1 e6a2aa3027ef4e39156edf4585aeed0ab4e7885f lib/PBibTk/SearchDialog.pm
-SHA1 50928a8f57ac30b181fa014e4bb9c48d8bc062f3 styles/ACM/CHI.pbib
-SHA1 7ccb2fe131bef88c60a74fc03f332c58ab99eb83 styles/ACM/CSCW.pbib
-SHA1 31163a269982eac26e72567aec5c89e889303ae4 styles/ACM/SIG.pbib
-SHA1 c5a74af7783f4b17af9965fb9afb5007c387cbc9 styles/Elsevier/JSS.pbib
-SHA1 77ab55afdb44392e27260a7759a7c0228f673420 styles/IEEE/TR.pbib
-SHA1 d347ebb1bf151bbc68a0e85c2f1314d1effc2162 styles/peter/diss.pbib
-SHA1 dbf71d750e1a97e697d0c464867bd953e71c9351 styles/peter/labeled-list.pbib
-SHA1 3c41f11336ccc514071e2a8bdf666719d19fbd3c styles/peter/list.pbib
 SHA1 0e6ada101509235489f2571049509d48a451ab08 t/00-signature.t
 SHA1 2a337b896c66b4181eb92e1d2c7b39306300aeaa t/10-pbib-config.t
-SHA1 f43f989b9298af4acf7b954e6463b003279ae14b t/20-biblio.t
+SHA1 fd772753125ee82425f93fbd6dc6cf3d9604d588 t/20-biblio.t
 SHA1 2f9aa6c6429faca824aa44bdfb3931df3125259c t/21-odbc.t
-SHA1 3de9506d2b7cb9ac15d7c572d87db763ba6c0f81 t/30-pbib-module.t
-SHA1 2a78d91781015a7e7e33e73344529580a94b8762 t/31-pbib-script.t
+SHA1 53a412b1791f33e9a420fa28ab807f79e7dd7dba t/30-pbib-module.t
+SHA1 e2698a05e5cc3b915325f3079365791ad2c5c41a t/31-pbib-script.t
 SHA1 fe3141203ac048d23438ac3d7df86a3da4f971d6 t/expected-sample-pbib.doc
-SHA1 4572836c1123ca97a20cd47d94c1cf635649c68f t/expected-sample-pbib.html
-SHA1 ab3b64a90b6f0055f6822d8249a569100eb70557 t/expected-sample-pbib.rtf
-SHA1 19af6e4262ffe95c1373df236f5841d241a6c40b t/expected-sample-pbib.sxw
-SHA1 6294291515bc999f4f3256138767fd8874572c89 t/expected-sample-pbib.txt
-SHA1 ffffe9e324da14ae3e1ea5671b21ca79b7e201e5 t/expected-sample-pbib.xml
-SHA1 2d29dadb62ff500181ab7256396be199060e3f32 t/sample.bib
+SHA1 90c1397a1990c9b7dc34f492999ee73104ca60d5 t/expected-sample-pbib.html
+SHA1 aa85d2bd24197f684e97cd45b34f28ec6eb6c56a t/expected-sample-pbib.rtf
+SHA1 e159013eba75fced4236d5bc5749251a160c6021 t/expected-sample-pbib.sxw
+SHA1 5b56e3c6fdfb646fb7d74d866900b841b8e97597 t/expected-sample-pbib.txt
+SHA1 45a98e5d3f0ab6e51e6d9756b4154e15d65f2da5 t/expected-sample-pbib.xml
+SHA1 e64e5204abf27628d045ddc45a137ba84ac8d327 t/sample.bib
 SHA1 e5304d41309f9470c7314cbb0c5b7492792cdb44 t/sample.doc
 SHA1 6706b8678d958cf18a795a912902f1780add2b13 t/sample.html
 SHA1 c0883c0a15eb0d88780cad45ed9fdc8543613cf1 t/sample.pbib
@@ -191,12 +197,13 @@ SHA1 dc4aa599452c247c683c335f24450e80fbb4e53a t/sample_html_72d23e29.gif
 SHA1 4b2878855efdb9e383ead89a346134e6818f9b6b t/sample_html_m1d98ba7c.gif
 SHA1 926cf29a8d90b3a987f1f844914e85fa1bcd276a t/sample_html_m512dd214.gif
 SHA1 c3f012485b67821ab340ef979eb2dea1c4859a6b t/sample_html_m8a536e8.gif
+SHA1 8884806c0016593b1b5647feb9fb58d0f9ee7870 uninstall.bat
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (Cygwin)
 
-iQCVAwUBQb4YtR1avhdZBV+bAQFS6gP+Pcm2Mq3UgGaMV/4gZOUvxR0S4VUssWx/
-7aef2nffrznIF9UIDQE0v0sAUuCF/mqxmVgx3X1uBgeA+RPKfAICrFH/yXqDTwMW
-eBydIR6doRM7ZnWxriv8opl7M6r7q6LJvNUSYtdfxUpzTjtwAli5H8rxxfieaD12
-5s44AY/yji4=
-=wzqN
+iQCVAwUBQy05yR1avhdZBV+bAQGO4QQAtYmatEfwadb54l9Xv9mLElVHE2uCq5oG
+QyNeQHnpQswpLEJofam8pr3kdafEvu+73NPhJhqCMGsS3BnyCCrRy5c4KuD4R5f6
+D3FA6faFhOYCq7MRSHzdah6I/Oql8+Xtjk4aW5kHzSCu3CySWIiRdV47Jpbdfu8I
+66FBRc2a1Tc=
+=Pv5G
 -----END PGP SIGNATURE-----

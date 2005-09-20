@@ -1,5 +1,5 @@
 # --*-Perl-*--
-# $Id: Builder.pm 18 2004-12-12 07:41:44Z tandler $
+# $Id: Builder.pm 25 2005-09-17 21:45:54Z tandler $
 #
 
 =head1 NAME
@@ -35,7 +35,7 @@ use warnings;
 
 BEGIN {
     use vars qw($Revision $VERSION);
-	my $major = 1; q$Revision: 18 $ =~ /: (\d+)/; my ($minor) = ($1); $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
+	my $major = 1; q$Revision: 25 $ =~ /: (\d+)/; $VERSION = sprintf("$major.%03d", $1);
 }
 
 # superclass

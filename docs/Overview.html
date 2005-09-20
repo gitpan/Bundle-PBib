@@ -30,6 +30,7 @@
 		<li><a href="#run_pbib">RUN PBIB</a></li>
 	</ul>
 
+	<li><a href="#success_stories_;)">SUCCESS STORIES ;-)</a></li>
 	<li><a href="#configuration">CONFIGURATION</a></li>
 	<ul>
 
@@ -100,7 +101,16 @@ such as bibtex, refer, tib, but also database systems with different mappings to
 <dl>
 <dt><strong><a name="item_%2d_perl%3adbi_databases">- Perl:DBI databases</a></strong><br />
 </dt>
+<dd>
+You can configure the database schema to use, see <em>conf/default.pbib</em>, <em>conf/OOo-table.pbib</em> and some for DBMSs, see
+<em>conf/mysql.pbib</em>, <em>conf/adabas.pbib</em>.
+You can <code>include</code> the files in your <em>site.pbib</em> file if you are
+using one of these systems.
+</dd>
+<p></p>
 <dt><strong><a name="item_%2d_bibtex_files">- bibtex files</a></strong><br />
+</dt>
+<dt><strong><a name="item_%2d_several_other_file_types_that_are_supported_by">- several other file types that are supported by the bp package.</a></strong><br />
 </dt>
 </dl>
 <p>I'd recommend to use a mysql database, this works fine for me.
@@ -136,7 +146,7 @@ You can find sample files in the test folder <em>t</em>.</p>
 <dt><strong><a name="item_%2d_ms_word_%2edoc%2c_%2ertf">- MS Word .doc, .rtf</a></strong><br />
 </dt>
 <dd>
-.doc will be converted to .rtf before processing (requires MS Word to be installed.)
+.doc will be converted to .rtf before processing (requires MS Word to be installed)
 </dd>
 <p></p>
 <dt><strong><a name="item_%2d_plain_text">- Plain Text</a></strong><br />
@@ -183,10 +193,21 @@ There is support for XML, but of course the generic XML support is very limited.
 <h2><a name="run_pbib">RUN PBIB</a></h2>
 <p>Provided scripts as front ends for the modules:</p>
 <p>bin/pbib.pl &lt;&lt;filename&gt;&gt;</p>
-<p>Process an input document and write the converted output.</p>
+<p>Process an input document and write the converted output to a new file
+called <em>filename</em><code>-pbib.</code><em>ext</em>.</p>
 <p>bin/PBibTk.pl [&lt;&lt;optional filename&gt;&gt;]</p>
 <p>Open a Tk GUI that allows you to browse you bibliography database and browse the items referenced in your document.</p>
-<p>You can use a filename.pbib config file to specify specific configuration for a file.</p>
+<p>
+<a href="#__index__"><small>__top</small></a>
+</p>
+<hr />
+<h1><a name="success_stories_;)">SUCCESS STORIES ;-)</a></h1>
+<p>I've used PBib/PBibTk to format citations and generate the bibliography for my thesis and several other papers; 
+in fact, I wrote it as I couldn't find another tool that matched my requirements. 
+To get an idea of the scope that PBib can handle: My thesis references about 360 papers, there are &gt;900 entries in the database, the thesis converted to a RTF file is about 50MB. Maybe, you want to have a look at 
+<a href="http://elib.tu-darmstadt.de/diss/000506">http://elib.tu-darmstadt.de/diss/000506</a> or 
+<a href="http://ipsi.fraunhofer.de/ambiente/publications/">http://ipsi.fraunhofer.de/ambiente/publications/</a>.</p>
+<p>The bibliographic database I used is available in BibTeX format at <a href="http://tandlers.de/peter/beach/">http://tandlers.de/peter/beach/</a> (with lots of HCI, CSCW, UbiComp references).</p>
 <p>
 <a href="#__index__"><small>__top</small></a>
 </p>
@@ -195,6 +216,7 @@ There is support for XML, but of course the generic XML support is very limited.
 <p>You can configure PBib in a number of ways, e.g. using config files and 
 environment variables. For detailed information, please refer to 
 module <a href="././blib/html/site/lib/PBib/Config.html">the PBib::Config manpage</a>.</p>
+<p>You can use a filename.pbib config file to specify specific configuration for a file.</p>
 <p>
 </p>
 <h2><a name="environment_variables">Environment Variables</a></h2>
@@ -288,7 +310,7 @@ Main functionality to process documents that contain references.
 PBibTk provides a GUI for PBib. It uses PBib and Biblio.
 </dd>
 <dd>
-<p>The main class is <a href="././blib/lib/PBibTk/Main.html">the PBibTk::Main manpage</a>. It is started with the script <em>PBibTk.pl</em>.</p>
+<p>The main class is <a href="././blib/html/site/lib/PBibTk/Main.html">the PBibTk::Main manpage</a>. It is started with the script <em>PBibTk.pl</em>.</p>
 </dd>
 <p></p></dl>
 <p>I've thought about deploying these as separate packages, but currently I believe that this way it's easier to install and use.</p>
@@ -366,10 +388,23 @@ If $infile (filename) is undef, inDoc (document) is used.
 Write log file.
 </dd>
 <p></p>
-<dt><strong><a name="item_scanfile">$pbib-&gt;<code>scanFile()</code></a></strong><br />
+<dt><strong><a name="item_scanfile">$pbib-&gt;scanFile($infile, $config)</a></strong><br />
 </dt>
 <dd>
 Returns the foundInfo for the $infile.
+</dd>
+<p></p>
+<dt><strong><a name="item_filterreferencesforfiles">\%foundIDs = $pbib-&gt;<code>filterReferencesForFiles(@files)</code></a></strong><br />
+</dt>
+<dd>
+Filter the known references to the ones used in @files, a hash reference is returned.
+CrossRefs are also included (filterReferences() is used).
+</dd>
+<p></p>
+<dt><strong><a name="item_filterreferences">$pbib-&gt;<code>filterReferences($filter_refs)</code></a></strong><br />
+</dt>
+<dd>
+Scan the passed refs for the known ones, return a new hash reference with all known references (including CrossRefs).
 </dd>
 <p></p></dl>
 <p>
@@ -377,7 +412,9 @@ Returns the foundInfo for the $infile.
 </p>
 <hr />
 <h1><a name="author">AUTHOR</a></h1>
-<p>Peter Tandler &lt;<a href="mailto:pbib@tandlers.de">pbib@tandlers.de</a>&gt;</p>
+<p>Peter Tandler &lt;<a href="mailto:pbib@tandlers.de">pbib@tandlers.de</a>&gt;
+
+</p>
 <p>
 <a href="#__index__"><small>__top</small></a>
 </p>
@@ -396,6 +433,8 @@ Returns the foundInfo for the $infile.
 <h1><a name="see_also">SEE ALSO</a></h1>
 <p><em>bin\pbib.pl</em>, <em>bin\PBibTk.pl</em>
 
+</p>
+<p><a href="http://tandlers.de/peter/pbib/">http://tandlers.de/peter/pbib/</a>
 </p>
 <p><a href="#__index__"><small>__top</small></a></p>
 <table border="0" width="100%" cellspacing="0" cellpadding="3">

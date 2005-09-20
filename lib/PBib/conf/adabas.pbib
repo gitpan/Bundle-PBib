@@ -1,8 +1,8 @@
-/* $Id: adabas.pbib 6 2004-10-17 13:48:08Z tandler $
+/* $Id: adabas.pbib 25 2005-09-17 21:45:54Z tandler $
  *
  * Adabas configuration
  *
- * use ODBC driver? or if there another one?
+ * use ODBC driver? or is there another one?
  */
 
 

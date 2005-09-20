@@ -1,5 +1,5 @@
 # --*-Perl-*--
-# $Id: XHTML.pm 11 2004-11-22 23:56:20Z tandler $
+# $Id: XHTML.pm 25 2005-09-17 21:45:54Z tandler $
 #
 
 =head1 NAME
@@ -32,7 +32,7 @@ use Data::Dumper;
 
 BEGIN {
     use vars qw($Revision $VERSION);
-	my $major = 1; q$Revision: 11 $ =~ /: (\d+)/; my ($minor) = ($1); $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
+	my $major = 1; q$Revision: 25 $ =~ /: (\d+)/; my ($minor) = ($1); $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
 }
 
 # superclass
@@ -160,9 +160,9 @@ sub comment { my ($self, $text) = @_;
 #
 
 
-sub bibitems_start { my ($self) = @_; return ""; }
-sub bibitems_separator { my ($self) = @_; return $self->paragraph(); }
-sub bibitems_end { my ($self) = @_; return ""; }
+sub bibitems_start { my ($self) = @_; return "<ol>\n<li>"; }
+sub bibitems_separator { my ($self) = @_; return "</li>\n<li>"; }
+sub bibitems_end { my ($self) = @_; return "</li>\n</ol>"; }
 
 sub block_start { my ($self) = @_; return ""; }
 sub block_separator { my ($self) = @_; return ' '; }

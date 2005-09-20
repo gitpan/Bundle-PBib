@@ -1,5 +1,5 @@
 # --*-Perl-*--
-# $Id: Config.pm 18 2004-12-12 07:41:44Z tandler $
+# $Id: Config.pm 25 2005-09-17 21:45:54Z tandler $
 #
 
 =head1 NAME
@@ -32,7 +32,7 @@ use Data::Dumper;
 
 BEGIN {
 	use vars qw($Revision $VERSION);
-	my $major = 1; q$Revision: 18 $ =~ /: (\d+)/; my ($minor) = ($1); $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
+	my $major = 1; q$Revision: 25 $ =~ /: (\d+)/; $VERSION = sprintf("$major.%03d", $1);
 }
 
 # superclass
@@ -386,18 +386,42 @@ the following places are searched for all config files:
 
 =item $HOME
 
+If $HOME is set, pbib searches:
+	$ENV{HOME}/.pbib/styles
+	$ENV{HOME}/.pbib/conf
+	$ENV{HOME}/.pbib
+	$ENV{HOME}
+
 =item $PBIBSTYLES
+
+Can be a comma separated list.
 
 =item $PBIBCONFIG
 
-=item $PBIBPATH (separated by ':' or ';')
+Can be a comma separated list.
 
-if $PBIBPATH is undefined, it defaults to /etc/pbib
+=item $PBIBPATH (separated by ',')
 
-=item $PBIBDIR/styles, $PBIBDIR/conf, $PBIBDIR
+if $PBIBPATH is undefined, it defaults to 
+/etc/pbib/styles,/etc/pbib/conf,/etc/pbib,/etc
+
+=item $APPDATA
+
+$APPDATA is supported for Windows XP. If set, pbib searches
+	$ENV{APPDATA}/PBib/styles
+	$ENV{APPDATA}/PBib/conf
+	$ENV{APPDATA}/PBib
+
+=item $PBIBDIR
 
 if $PBIBDIR is undefined, it defaults to the directory pbib 
-resides in.
+resides in (as detected by FindBin).
+
+=item all PBib/styles and PBib/conf in @INC
+
+Perl's include path @INC is searched for all subdirectories
+PBib/styles and PBib/conf. This is where the an installed PBib
+finds all the default configuration.
 
 =back
 
@@ -407,9 +431,9 @@ necessary. Use with care!
 
 =cut
 
-our $PBIB_BIN = $ENV{'PBIBDIR'} || $Bin;
-our @PBIB_PATH = split( /;/, $ENV{'PBIBPATH'} || 
-		'/etc/pbib/styles;/etc/pbib/conf;/etc/pbib;/etc' );
+our $PBIB_DIR = $ENV{'PBIBDIR'} || $Bin;
+our @PBIB_PATH = split( /,/, $ENV{'PBIBPATH'} || 
+		'/etc/pbib/styles,/etc/pbib/conf,/etc/pbib,/etc' );
 our @CONFIG_PATH = grep { defined($_) } (
 	'.',
 	$ENV{HOME} ? (		# for personal settings
@@ -418,17 +442,15 @@ our @CONFIG_PATH = grep { defined($_) } (
 		"$ENV{HOME}/.pbib",
 		$ENV{HOME},
 		) : (),
-	split( /;/, $ENV{'PBIBSTYLES'} || ''),
-	split( /;/, $ENV{'PBIBCONFIG'} || ''),
+	split( /,/, $ENV{'PBIBSTYLES'} || ''),
+	split( /,/, $ENV{'PBIBCONFIG'} || ''),
 	@PBIB_PATH,
 	$ENV{APPDATA} ? (		# for Windows XP
 		"$ENV{APPDATA}/PBib/styles",
 		"$ENV{APPDATA}/PBib/conf",
 		"$ENV{APPDATA}/PBib",
 		) : (),
-	"$PBIB_BIN/../styles",	# when run from bin dir (e.g. uninstalled version)
-	"$PBIB_BIN/../conf",
-	$PBIB_BIN,
+	$PBIB_DIR,
 	map("$_/PBib/styles", @INC),
 	map("$_/PBib/conf", @INC),
 	);

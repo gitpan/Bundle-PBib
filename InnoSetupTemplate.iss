@@ -31,6 +31,7 @@ DefaultGroupName=%app_name%
 AllowNoIcons=yes
 LicenseFile=%base_dir%\LICENSE
 InfoBeforeFile=%base_dir%\INSTALL
+InfoAfterFile=%base_dir%\README
 AppReadmeFile=%base_dir%\README
 Compression=lzma
 SolidCompression=yes

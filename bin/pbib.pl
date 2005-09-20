@@ -1,10 +1,10 @@
 #! /usr/bin/perl
-# $Id: pbib.pl 19 2004-12-12 12:15:43Z tandler $
+# $Id: pbib.pl 23 2005-07-17 19:28:02Z tandler $
 #
 # convert references in rtf, doc or text files
 #
 
-=head1 pbib.pl
+=head1 NAME
 
 pbib.pl - process source file to generate list of references
 

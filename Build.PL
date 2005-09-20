@@ -7,6 +7,8 @@ use PBib::Builder;
 my $b = PBib::Builder->new
 	(
 		dist_name => 'Bundle-PBib',
+		dist_version => '2.08.01',
+		dist_version_from => 'lib/PBib/PBib.pm',
 		module_name => 'PBib::PBib',
 		license => 'perl',
 		
@@ -18,23 +20,62 @@ my $b = PBib::Builder->new
 		support_url => 'http://tandlers.de/peter/pbib',
 		updates_url => 'http://tandlers.de/peter/pbib',
 		
+		meta_merge => {
+			resources => {
+				homepage => 'http://tandlers.de/peter/pbib',
+				bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Bundle-PBib',
+#				MailingList => 'http://lists.sourceforge.net/lists/listinfo/module-build-general',
+				}
+			},
 		requires => {
 				'perl' => '5.6.1', # I've tested with 5.8
+				'Module::Build' => '0.2604',
 				'Bundle::DBI' => '11.02',
 				'Config::General' => '2.18',
 				'Cwd' => '2.06',
 				'Data::Dumper' => '2.12',
 			},
+		auto_features => {
+			DBD_ODBC => {
+				description => "Access ODBC data sources",
+				requires => { 'DBD::ODBC' => '1.0', },
+				},
+			DBD_mysql => {
+				description => "Access MySQL databases",
+				requires => { 'DBD::mysql' => '2.1', },
+				},
+			PBibTk => {
+				description => "Run PBibTk.pl, the GUI for PBib",
+				requires => {
+					'Tk' => '800.024',
+					'Win32::OLE' => '0.16',
+					'Win32::Clipboard' => '0.51',
+					},
+				},
+			doc_MSWord => {
+				description => "Process MS Word documents",
+				requires => {
+					'Win32::OLE' => '0.16',
+					},
+				},
+			doc_OpenOffice => {
+				description => "Process OpenOffice documents",
+				requires => {
+					'Archive::Zip' => '1.13',
+					'XML::Parser' => '2.31',
+					},
+				},
+			doc_XML => {
+				description => "Process XML documents",
+				requires => {
+					'XML::Parser' => '2.31',
+					},
+				},
+			},
 		recommends => {
-				'DBD::ODBC' => '1.0',
-				'DBD::mysql' => '2.1',
-				'Tk' => '800.024',		# for PBibTk.pl
-				'Win32::OLE' => '0.16',	# for PBibTk.pl, MS Word support
-				'Win32::Clipboard' => '0.51',	# for PBibTk.pl
-				'Archive::Zip' => '1.13', # for OpenOffice support
-				'XML::Parser' => '2.31', # for OpenOffice and XML support
 			},
 		build_requires => {
+		      'Test::More' => 0,
 			},
 		
 		script_files => [qw(
@@ -49,17 +90,20 @@ my $b = PBib::Builder->new
 		sign => 1,
 		
 		# PBib::Builder extensions
-		config_srcdir => '.',
-		config_destdir => 'lib/PBib',
-		config_pattern => qr{^./(conf|styles)/.*\.pbib$},
+		## obsolete: I now use a new build element 'pbib'
+		##   as I placed the config under lib/PBib
+		#  config_srcdir => '.',
+		#  config_destdir => 'lib/PBib',
+		#  config_pattern => qr{^./(conf|styles)/.*\.pbib$},
 		
 		htmldocs => {
 			'lib/PBib/Intro.pod' => 'docs/Intro.html',
 			'lib/PBib/PBib.pm' => 'docs/Overview.html',
 			},
 	);
-
-$b->register_config_files(); # process config_* parameters
+$b->add_build_element('pbib');
+#  $b->register_config_files(); # process config_* parameters
+#### obsolete, see above
 
 # add bp files to install list
 {

@@ -1,6 +1,32 @@
 # --*-Perl-*--
-# $Id: Main.pm 10 2004-11-02 22:14:09Z tandler $
+# $Id: Main.pm 23 2005-07-17 19:28:02Z tandler $
 #
+
+=head1 NAME
+
+PBibTk::Main - GUI for PBib, a tool for managing and processing bibliographic data
+
+=head1 SYNOPSIS
+
+	# taken from PBibTk.pl
+	use PBibTk::LitRefs;
+	use PBibTk::Main;
+	
+	my $litrefs = new PBibTk::LitRefs();
+	$litrefs->processArgs();
+	
+	my $ui = new PBibTk::Main($litrefs);
+	$ui->main();
+
+=head1 DESCRIPTION
+
+I wrote PBib to have something like BibTex for MS Word that can use a various sources for bibliographic references, not just BibTex files, but also database systems.
+
+F<PBibTk.pl> / C<PBibTk::Main> is a simple GUI written with Perl's Tk package.
+
+See the L<PBibTk.pl> documentation for more information.
+
+=cut
 
 package PBibTk::Main;
 use strict;
@@ -37,7 +63,7 @@ use PBibTk::RefDialog;
 
 BEGIN {
     use vars qw($Revision $VERSION);
-	my $major = 1; q$Revision: 10 $ =~ /: (\d+)/; my ($minor) = ($1); $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
+	my $major = 1; q$Revision: 23 $ =~ /: (\d+)/; my ($minor) = ($1); $VERSION = "$major." . ($minor<10 ? '0' : '') . $minor;
 }
 
 
@@ -984,128 +1010,22 @@ sub searchInFile {
 
 1;
 
-#
-# $Log: LitUI.pm,v $
-# Revision 1.35  2004/03/30 19:12:31   krugar
-# refactored: 
-# 	LitUIRefDialog -> LitUI::RefDialog 
-#	LitUISearchDialog -> LitUI::SearchDialog 
-#
+__END__
 
-#
-# $Log: LitUI.pm,v $
-# Revision 1.34  2004/03/29 13:12:34  tandler
-# box to see refs
-#
-# Revision 1.33  2003/12/22 21:59:41  tandler
-# toni's changes: include explaination field in UI
-#
-# Revision 1.32  2003/11/20 17:33:44  gotovac
-# reveals entry by clicking on citekey (fast)
-#
-# Revision 1.31  2003/06/16 09:04:53  tandler
-# minor fixes
-#
-# Revision 1.30  2003/06/12 22:18:28  tandler
-# use new PBib::PBib::processFile()
-#
-# Revision 1.29  2003/04/14 09:51:11  ptandler
-# fixed prototypes,
-# provide "import" in menu
-#
-# Revision 1.28  2003/02/20 09:23:40  ptandler
-# minor
-#
-# Revision 1.27  2003/01/21 10:48:17  ptandler
-# use PBib::Config
-#
-# Revision 1.26  2003/01/14 11:10:17  ptandler
-# fonts and export
-#
-# Revision 1.25  2002/11/05 18:25:31  peter
-# sort lists lowercase
-#
-# Revision 1.24  2002/11/03 22:11:17  peter
-# initial file selector dir & name
-#
-# Revision 1.23  2002/10/11 10:12:06  peter
-# unchanged
-#
-# Revision 1.22  2002/09/23 11:13:19  peter
-# directly call pbib to process documents
-#
-# Revision 1.21  2002/08/08 08:20:22  Diss
-# - new window title ("PBib")
-# - menu entry + KB shortcut to jump to paper ref list
-# - autor query looks for fields "Authors" and "Editors"
-#
-# Revision 1.20  2002/06/29 18:28:32  Diss
-# new query style, focus + jump-to-by-key for all ref lists
-#
-# Revision 1.19  2002/06/24 10:46:27  Diss
-# started support for query-histories,
-# which implied changes in the keyboard bindings
-#
-# Revision 1.18  2002/06/19 15:57:41  Diss
-# - menus restuctred
-# - menu keyboard shortcuts (Alt-B, Alt-P)
-# - return and double-click to show reference details window
-# - keys a-z to jump to ref in list
-#
-# Revision 1.17  2002/06/11 11:15:16  Diss
-# fix: update if filename is undef
-#
-# Revision 1.16  2002/06/10 17:13:10  Diss
-# adapted initial window sizes + minor "searchInEditor" fix
-#
-# Revision 1.15  2002/06/07 11:21:41  Diss
-# bugfix: 'PaperID' -> 'CiteKey'
-# new menus for search dialog
-#
-# Revision 1.14  2002/06/06 10:23:59  Diss
-# searchInEditor support - jump to CiteKeys in editor
-# (litUI uses PBib::Doc classes)
-#
-# Revision 1.13  2002/06/06 08:59:06  Diss
-# use Tk:ErrorDialog
-#
-# Revision 1.12  2002/06/06 07:25:07  Diss
-# added keyboard shortcuts
-#
-# Revision 1.11  2002/06/03 11:36:22  Diss
-# use system to start editor (fork seems to crash currently)
-#
-# Revision 1.10  2002/03/22 17:31:02  Diss
-# small changes
-#
-# Revision 1.9  2002/03/18 11:15:50  Diss
-# major additions: replace [] refs, generate bibliography using [{}], ...
-#
-# Revision 1.8  2002/02/25 12:20:08  Diss
-# Biblio can now ignore case in queries (using the SQL lower function),
-# LitUI queries are now case-insensitive, and system() is used to open files.
-#
-# Revision 1.7  2002/02/11 11:57:06  Diss
-# lit UI with search dialog, script to start/stop biblio, and more ...
-#
-# Revision 1.6  2002/01/26 18:21:54  ptandler
-# - disconnect from Biblio-DB in LitRef's destructor (DESTROY)
-#   -> this allows to re-read the entries without re-connecting
-# - moved Word-Doc support from LitUI to LitRef
-#
-# Revision 1.5  2002/01/24 22:44:10  ptandler
-# moved .doc support to LitRefs.pm
-#
-# Revision 1.4  2002/01/24 21:39:35  ptandler
-# several changes
-#
-# Revision 1.3  2002/01/20 14:53:43  ptandler
-# even nicer now :-)
-#
-# Revision 1.2  2002/01/20 14:10:09  ptandler
-# the UI is quite nice already!
-#
-# Revision 1.1  2002/01/19 00:47:59  ptandler
-# - new LitUI.pm and litUI.pl
-# - minor changes
-#
+=head1 AUTHOR
+
+Peter Tandler <pbib@tandlers.de>
+
+=head1 COPYRIGHT AND LICENCE
+
+Copyright (C) 2002-2004 P. Tandler
+
+For copyright information please refer to the LICENSE file included in this distribution.
+
+=head1 SEE ALSO
+
+Modules: L<PBib::PBib>, L<PBibTk::RefDialog>, L<PBibTk::SearchDialog>
+
+Scripts: F<bin/pbib.pl>, F<bin/PBibTk.pl>
+
+URL: L<http://tandlers.de/peter/pbib/>

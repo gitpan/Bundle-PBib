@@ -8,17 +8,76 @@ This is my personal list of what I want to add as soon as I have some time.
 - most of all: write lots of documentation ......
 
 
+- major re-design: use some XSL based formatting of references ...
+
+- rename file "CrossRef" to e.g. "XRef" to avoid confusion with bibtex's field, which does not always act the same way as PBib would do.
+
+
 - interal charset should always be utf8 --> check document handling (quote / unquote methods, esp. look at RTF) and biblio database handling (via bp).
 
 - release file after save as (04-03-17: fixed??)
 - ACM / default style: support "inline" fields!
 
 
+
+
+
+
+>>>
+OpenOffice::OODoc 1.207 is now available at CPAN.
+>
+> OpenOffice::OODoc (Open Office Document Connector) is an XPath-based,
+> object-oriented Perl module allowing direct read/write access to any
+> content, presentation or metadata element in OOo files. It's distributed
+>   in standard CPAN format and can run on any platform supporting Perl 5.8.
+> This tool is designed to allow simple scripting out of the OOo
+> environement.
+>
+> This last release brings some enhancements related to spreadsheets,
+> allowing the user to process cells in a Calc document in the same way as
+> in a Writer document containing tables.
+>
+> For documentation and download, see the project page
+>
+> http://search.cpan.org/dist/OpenOffice-OODoc
+
+David,
+
+FYI, the last release of the OpenOffice::OODoc Perl API (to be released
+in the next few hours) includes accessors allowing easy read/update
+queries against any biblio property.
+
+Example:
+
+@list = $doc->getBibliographyEntries("GEN99");
+
+returns the full list of entries where the identifier matches "GEN99"
+
+$doc->bibiographyEntryContent
+             (
+             "GEN99",
+             title     => "My Title",
+             author    => "A Name",
+             isbn      => "xxxzzz"
+             );
+
+updates (or creates) some properties of the [GEN99] entry
+
+%properties = $doc->bibliographyEntryContent("GEN99");
+
+returns a hash table (i.e. key/value pairs) containing all the
+properties of [GEN99]
+
+I hope that will help to develop quick scripts that directly process
+bibliography entries in the OOo files...
+<<<
+
 - integrate support for Bibilio::CiteParser to support maintainance of bibliography databases
 
 
 Config:
 - parse cmd line args with dot-syntax, e.g. -item.style=IEEE
+- maybe use AppConfig::Std
 
 LitUI:
 

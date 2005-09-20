@@ -1,5 +1,5 @@
 #! /usr/bin/perl
-# $Id: pbib-export.pl 18 2004-12-12 07:41:44Z tandler $
+# $Id: pbib-export.pl 24 2005-07-19 11:56:01Z tandler $
 
 =head1 NAME
 
@@ -20,7 +20,7 @@ and only references found are exported. You can use this, e.g.,
 if you want to distribute the references used in a paper together 
 with the paper in a machine-readable format.
 
-Please cheack the bp documentation if you want to export the 
+Please check the bp documentation if you want to export the 
 references in a format other than BibTeX ...
 
 =cut
@@ -103,28 +103,9 @@ if ($outfile ne '-') {
 #
 
 if( @files ) {
-	my %foundIDs;
-	
 	# scan files for references
-	my $pbib = new PBib::PBib();
-	while( my $file = shift(@files) ) {
-		my $foundInfo = $pbib->scanFile($file);
-		foreach my $id (keys(%$foundInfo)) {
-			$foundIDs{$id} = 1;
-		}
-	}
-	
-	# filter only to known references
-	my $all_refs = $refs;
-	$refs = {};
-	foreach my $id (keys(%foundIDs)) {
-		my $ref = $all_refs->{$id};
-		if( ! defined($ref) ) {
-			print STDERR "Unkown reference '$id'\n";
-		} else {
-			$refs->{$id} = $ref;
-		}
-	}
+	my $pbib = new PBib::PBib('refs' => $refs);
+	$refs = $pbib->filterReferencesForFiles(@files);
 }
 
 
@@ -146,7 +127,14 @@ sub dieusage {
   my($prog) = substr($0,rindex($0,'/')+1);
 
   my $str =<<"EOU";
-Usage: $prog [<bp arguments>] [-to outfile] [bibfile ...]
+Usage:
+
+  perl pbib-export.pl -to <outfile.bib>
+  perl pbib-export.pl -to <outfile.bib> <filename1> ...
+
+If filenames are given, the export will be filtered to the references used in these files only.
+
+Arguments:
   -to  Write the output to <outfile> instead of the standard out
 
   -bibhelp         general help with the bp package
